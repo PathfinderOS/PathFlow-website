@@ -533,16 +533,11 @@ function HomePage() {
 
 function BeamsBackground() {
   const beamPaths = [
-    'M-920 -260 C-280 40 300 280 980 530 C1700 795 2320 1045 3520 1490',
-    'M-950 70 C-270 360 325 610 1010 875 C1710 1145 2380 1410 3520 1890',
-    'M-940 410 C-240 715 370 970 1080 1245 C1800 1524 2440 1810 3540 2300',
-    'M-900 760 C-160 1085 470 1350 1180 1645 C1900 1944 2520 2235 3540 2760',
-    'M-860 1120 C-110 1460 560 1745 1280 2068 C2000 2390 2615 2720 3540 3310',
-    'M-730 1510 C30 1850 700 2160 1420 2525 C2110 2875 2700 3235 3540 3920',
-    'M-360 -380 C220 20 760 410 1300 915 C1840 1420 2260 1980 3060 3440',
-    'M90 -430 C610 -20 1040 420 1505 1030 C1970 1640 2320 2300 2920 3960',
-    'M560 -420 C1010 45 1350 560 1730 1275 C2100 1970 2350 2660 2780 4160',
-    'M1070 -360 C1420 150 1680 760 1980 1560 C2255 2295 2460 3050 2700 4300',
+    'M-780 120 C0 250 820 390 3180 760',
+    'M-840 620 C10 840 920 1030 3180 1500',
+    'M-780 1130 C80 1390 1040 1610 3180 2280',
+    'M-640 1680 C280 1980 1220 2260 3180 3100',
+    'M-420 2240 C500 2540 1380 2860 3180 3860',
   ];
 
   return (
@@ -579,26 +574,10 @@ function BeamsBackground() {
               stroke="url(#beam-platinum-gradient)"
               style={{
                 '--beam-delay': `${-index * 2.15}s`,
-                '--beam-duration': `${17 + (index % 4) * 2.5}s`,
-                '--beam-opacity': `${0.34 - (index % 3) * 0.035}`,
+                '--beam-duration': `${20 + index * 1.75}s`,
+                '--beam-opacity': `${0.28 - (index % 2) * 0.035}`,
               }}
               key={`active-${path}`}
-            />
-          ))}
-        </g>
-        <g className="beams-active-layer beams-active-layer-secondary">
-          {beamPaths.slice(1, 8).map((path, index) => (
-            <path
-              className="beam-streak beam-streak-secondary"
-              d={path}
-              pathLength="1"
-              stroke="url(#beam-platinum-gradient)"
-              style={{
-                '--beam-delay': `${-6 - index * 2.6}s`,
-                '--beam-duration': `${23 + (index % 3) * 3}s`,
-                '--beam-opacity': `${0.22 - (index % 2) * 0.035}`,
-              }}
-              key={`secondary-${path}`}
             />
           ))}
         </g>
