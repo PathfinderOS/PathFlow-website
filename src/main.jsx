@@ -532,56 +532,9 @@ function HomePage() {
 }
 
 function BeamsBackground() {
-  const beamPaths = [
-    'M-780 120 C0 250 820 390 3180 760',
-    'M-840 620 C10 840 920 1030 3180 1500',
-    'M-780 1130 C80 1390 1040 1610 3180 2280',
-    'M-640 1680 C280 1980 1220 2260 3180 3100',
-    'M-420 2240 C500 2540 1380 2860 3180 3860',
-  ];
-
   return (
     <div className="beams-background" aria-hidden="true">
-      <svg
-        className="beams-svg"
-        viewBox="0 0 2600 3200"
-        fill="none"
-        preserveAspectRatio="none"
-        focusable="false"
-      >
-        <defs>
-          <linearGradient id="beam-platinum-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-            <stop offset="24%" stopColor="#ffffff" stopOpacity="0.18" />
-            <stop offset="50%" stopColor="#f5f5f5" stopOpacity="0.72" />
-            <stop offset="74%" stopColor="#ffffff" stopOpacity="0.24" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        <g className="beams-static-layer">
-          {beamPaths.map((path) => (
-            <path className="beam-static" d={path} stroke="white" key={`static-${path}`} />
-          ))}
-        </g>
-
-        <g className="beams-active-layer">
-          {beamPaths.map((path, index) => (
-            <path
-              className="beam-streak"
-              d={path}
-              pathLength="1"
-              stroke="url(#beam-platinum-gradient)"
-              style={{
-                '--beam-delay': `${-index * 2.15}s`,
-                '--beam-duration': `${20 + index * 1.75}s`,
-                '--beam-opacity': `${0.28 - (index % 2) * 0.035}`,
-              }}
-              key={`active-${path}`}
-            />
-          ))}
-        </g>
-      </svg>
+      <img className="wave-background" src="/assets/wave-2.svg" alt="" />
     </div>
   );
 }
