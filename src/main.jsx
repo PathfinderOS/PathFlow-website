@@ -593,10 +593,10 @@ function Hero() {
         <div className="max-w-5xl">
           <p className="mb-6 max-w-md text-sm font-medium leading-6 text-white/80">Managed web systems for service businesses.</p>
           <h1 className="max-w-5xl text-5xl font-semibold leading-[1.02] tracking-normal text-white sm:text-6xl lg:text-7xl xl:text-8xl">
-            Build the system behind every lead.
+            Build the system behind every client.
           </h1>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-white/70 sm:text-xl sm:leading-9">
-            Pathflow builds and manages the systems behind your lead journey:
+            Pathflow builds and manages the systems behind your business: lead
             intake forms, CRM workflows, document collection, follow-up automation,
             dashboards, and hosting.
           </p>

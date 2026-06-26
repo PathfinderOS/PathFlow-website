@@ -189,8 +189,8 @@ body {
   max-width: none;
   object-fit: cover;
   object-position: center 8%;
-  opacity: 0.075;
-  filter: brightness(0.72) contrast(0.62);
+  opacity: 0.24;
+  filter: saturate(1.08);
   mix-blend-mode: screen;
   transform: translate3d(-5vw, -4rem, 0) scale(1.08);
   transform-origin: center top;
