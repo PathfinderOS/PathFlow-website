@@ -518,7 +518,8 @@ function App() {
 
 function HomePage() {
   return (
-    <>
+    <div className="relative isolate overflow-hidden">
+      <BeamsBackground />
       <Hero />
       <ProblemSection />
       <ServicesSection />
@@ -526,7 +527,65 @@ function HomePage() {
       <WorkSection />
       <CarePlansSection />
       <ContactSection />
-    </>
+    </div>
+  );
+}
+
+function BeamsBackground() {
+  const beamPaths = [
+    'M-260 -180 C140 80 430 170 735 235 C1120 318 1305 478 1860 860 C2280 1150 2500 1505 2860 2420',
+    'M-360 70 C60 300 430 390 760 505 C1185 652 1405 810 1830 1140 C2200 1428 2415 1780 2700 2740',
+    'M-320 350 C95 575 420 684 770 820 C1180 980 1428 1162 1815 1458 C2185 1740 2405 2150 2640 3060',
+    'M-280 690 C160 905 480 1040 820 1195 C1208 1372 1495 1568 1870 1850 C2260 2144 2465 2548 2690 3340',
+    'M-170 1040 C240 1248 560 1398 910 1588 C1285 1792 1560 1988 1980 2290 C2305 2525 2540 2855 2860 3600',
+    'M20 -210 C405 4 710 145 1050 335 C1395 528 1705 775 2100 1175 C2405 1484 2575 1848 2790 2470',
+    'M420 -260 C732 -42 1020 154 1320 438 C1635 736 1875 1030 2190 1498 C2448 1882 2605 2260 2840 3040',
+    'M760 -210 C1028 20 1265 260 1515 615 C1815 1042 2032 1435 2320 2050 C2520 2476 2684 2842 2920 3540',
+  ];
+
+  return (
+    <div className="beams-background" aria-hidden="true">
+      <svg
+        className="beams-svg"
+        viewBox="0 0 2600 3200"
+        fill="none"
+        preserveAspectRatio="none"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient id="beam-platinum-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="24%" stopColor="#ffffff" stopOpacity="0.18" />
+            <stop offset="50%" stopColor="#f5f5f5" stopOpacity="0.72" />
+            <stop offset="74%" stopColor="#ffffff" stopOpacity="0.24" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <g className="beams-static-layer">
+          {beamPaths.map((path) => (
+            <path className="beam-static" d={path} stroke="white" key={`static-${path}`} />
+          ))}
+        </g>
+
+        <g className="beams-active-layer">
+          {beamPaths.map((path, index) => (
+            <path
+              className="beam-streak"
+              d={path}
+              pathLength="1"
+              stroke="url(#beam-platinum-gradient)"
+              style={{
+                '--beam-delay': `${index * 1.35}s`,
+                '--beam-duration': `${18 + (index % 4) * 2.75}s`,
+                '--beam-opacity': `${0.36 - (index % 3) * 0.04}`,
+              }}
+              key={`active-${path}`}
+            />
+          ))}
+        </g>
+      </svg>
+    </div>
   );
 }
 
@@ -579,7 +638,6 @@ function Header() {
 function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden pt-32 sm:pt-36">
-      <div className="absolute inset-0 -z-10 circuit-grid" />
       <div className="mx-auto max-w-7xl px-5 pb-28 sm:px-6 lg:px-8 lg:pb-36">
         <div className="max-w-5xl">
           <p className="mb-6 max-w-md text-sm font-medium leading-6 text-white/80">Managed web systems for service businesses.</p>
