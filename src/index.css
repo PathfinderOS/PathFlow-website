@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  background: #000;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #000;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.24);
+  color: #000;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-12 max-w-full items-center justify-center gap-2 border px-5 text-center text-sm font-semibold transition-colors;
+  }
+
+  .btn-small {
+    @apply min-h-10 px-4;
+  }
+
+  .btn-primary {
+    border-color: rgba(255, 255, 255, 0.88);
+    background: #fff;
+    color: #000;
+  }
+
+  .btn-primary:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.86);
+  }
+
+  .btn-secondary {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: transparent;
+    color: #fff;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+  }
+
+  .nav-link {
+    @apply transition-colors;
+  }
+
+  .nav-link:hover {
+    color: #fff;
+  }
+
+  .nav-dropdown {
+    @apply relative flex h-20 items-center;
+  }
+
+  .nav-trigger {
+    @apply inline-flex items-center gap-1.5 border-0 bg-transparent p-0 text-sm text-white/70;
+    font: inherit;
+  }
+
+  .nav-trigger:hover,
+  .nav-trigger:focus-visible {
+    color: #fff;
+  }
+
+  .nav-menu {
+    @apply pointer-events-none absolute left-1/2 top-full w-64 -translate-x-1/2 pt-3 opacity-0 transition-opacity duration-150;
+  }
+
+  .nav-dropdown:hover .nav-menu,
+  .nav-dropdown:focus-within .nav-menu {
+    @apply pointer-events-auto opacity-100;
+  }
+
+  .nav-menu-panel {
+    @apply border border-white/10 bg-black p-2 shadow-2xl shadow-black/60;
+  }
+
+  .nav-menu-link {
+    @apply block px-3 py-2.5 text-sm text-white/70 transition-colors;
+  }
+
+  .nav-menu-link:hover,
+  .nav-menu-link:focus-visible {
+    @apply bg-white/[0.04] text-white;
+  }
+
+  .eyebrow {
+    @apply text-sm font-medium uppercase tracking-[0.18em];
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .section-title {
+    @apply max-w-4xl text-4xl font-semibold leading-[1.12] tracking-normal sm:text-5xl;
+    color: #fff;
+  }
+
+  .problem-card,
+  .service-card,
+  .process-card,
+  .work-card,
+  .plan-card {
+    @apply border border-white/[0.075] bg-white/[0.018] p-6 transition-colors sm:p-7;
+  }
+
+  .problem-card:hover,
+  .service-card:hover,
+  .process-card:hover,
+  .work-card:hover,
+  .plan-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .service-detail-item {
+    @apply flex min-h-16 gap-3 border border-white/[0.075] bg-white/[0.018] p-4 text-sm font-medium leading-6 text-white/80 transition-colors;
+  }
+
+  .service-detail-item:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.circuit-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+  background-position: center top;
+  background-size: 76px 76px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
