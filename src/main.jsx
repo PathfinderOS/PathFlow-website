@@ -19,6 +19,7 @@ import {
   Sparkles,
   Wrench,
 } from 'lucide-react';
+import waveBackground from '../Wave.svg';
 import './index.css';
 
 const bookingLink =
@@ -534,7 +535,7 @@ function HomePage() {
 function BeamsBackground() {
   return (
     <div className="beams-background" aria-hidden="true">
-      <img className="wave-background" src="/assets/wave-2.svg" alt="" />
+      <img className="wave-background" src={waveBackground} alt="" />
     </div>
   );
 }
