@@ -518,7 +518,8 @@ function App() {
 
 function HomePage() {
   return (
-    <>
+    <div className="relative isolate overflow-hidden">
+      <BeamsBackground />
       <Hero />
       <ProblemSection />
       <ServicesSection />
@@ -526,7 +527,15 @@ function HomePage() {
       <WorkSection />
       <CarePlansSection />
       <ContactSection />
-    </>
+    </div>
+  );
+}
+
+function BeamsBackground() {
+  return (
+    <div className="beams-background" aria-hidden="true">
+      <img className="wave-background" src="/assets/wave-2.svg" alt="" />
+    </div>
   );
 }
 
@@ -579,7 +588,6 @@ function Header() {
 function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden pt-32 sm:pt-36">
-      <div className="absolute inset-0 -z-10 circuit-grid" />
       <div className="mx-auto max-w-7xl px-5 pb-28 sm:px-6 lg:px-8 lg:pb-36">
         <div className="max-w-5xl">
           <p className="mb-6 max-w-md text-sm font-medium leading-6 text-white/80">Managed web systems for service businesses.</p>
