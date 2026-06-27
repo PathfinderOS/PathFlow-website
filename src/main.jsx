@@ -20,6 +20,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import waveBackground from '../Wave.svg';
+import { isSupabaseConfigured, supabase } from './lib/supabaseClient';
 import './index.css';
 
 const bookingLink =
@@ -422,6 +423,8 @@ const customAppsUseCases = [
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+  const [session, setSession] = React.useState(null);
+  const [authReady, setAuthReady] = React.useState(!isSupabaseConfigured);
   const isCrmSystemsPage = pathname === '/services/crm-systems';
   const isLeadIntakePage = pathname === '/services/lead-intake';
   const isN8nAutomationPage = pathname === '/services/n8n-automation';
@@ -431,8 +434,50 @@ function App() {
   const isManagedHostingPage = pathname === '/services/managed-hosting';
   const isESignaturesPage = pathname === '/services/e-signatures';
   const isCustomAppsPage = pathname === '/services/custom-apps';
+  const isLoginPage = pathname === '/login';
+  const isPortalPage = pathname === '/portal';
 
   React.useEffect(() => {
+    if (!supabase) {
+      setAuthReady(true);
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!isMounted) {
+        return;
+      }
+
+      setSession(data.session);
+      setAuthReady(true);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthReady(true);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (isLoginPage) {
+      document.title = 'Log In | PathFlow';
+      return;
+    }
+
+    if (isPortalPage) {
+      document.title = 'Portal | PathFlow';
+      return;
+    }
+
     if (isCrmSystemsPage) {
       document.title = 'CRM Systems | Pathflow Web Services';
       return;
@@ -489,11 +534,15 @@ function App() {
     isManagedHostingPage,
     isESignaturesPage,
     isCustomAppsPage,
+    isLoginPage,
+    isPortalPage,
   ]);
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <Header />
+      <Header session={session} />
+      {isLoginPage && <LoginPage authReady={authReady} session={session} />}
+      {isPortalPage && <PortalPage authReady={authReady} session={session} />}
       {isCrmSystemsPage && <CrmSystemsPage />}
       {isLeadIntakePage && <LeadIntakePage />}
       {isN8nAutomationPage && <N8nAutomationPage />}
@@ -511,7 +560,9 @@ function App() {
         !isDashboardsPage &&
         !isManagedHostingPage &&
         !isESignaturesPage &&
-        !isCustomAppsPage && <HomePage />}
+        !isCustomAppsPage &&
+        !isLoginPage &&
+        !isPortalPage && <HomePage />}
       <Footer />
     </main>
   );
@@ -540,7 +591,9 @@ function BeamsBackground() {
   );
 }
 
-function Header() {
+function Header({ session }) {
+  const portalLabel = session ? 'Portal' : 'Log in';
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-black/[0.86] backdrop-blur-xl">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
@@ -577,13 +630,367 @@ function Header() {
             Contact
           </a>
         </div>
-        <a href={bookingLink} target="_blank" rel="noreferrer" className="btn btn-small btn-primary">
-          <CalendarCheck size={16} />
-          <span>Book consultation</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <a href={bookingLink} target="_blank" rel="noreferrer" className="btn btn-small btn-primary">
+            <CalendarCheck size={16} />
+            <span className="hidden sm:inline">Book consultation</span>
+            <span className="sm:hidden">Book</span>
+          </a>
+          <a href={session ? '/portal' : '/login'} className="btn btn-small btn-muted">
+            {portalLabel}
+          </a>
+        </div>
       </nav>
     </header>
   );
+}
+
+function LoginPage({ authReady, session }) {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  async function handlePasswordSignIn(event) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (!supabase || !email || !password) {
+      setError('Enter your email and password.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setIsSubmitting(false);
+
+    if (signInError) {
+      setError(signInError.message);
+      return;
+    }
+
+    window.location.assign('/portal');
+  }
+
+  async function handleMagicLink() {
+    setError('');
+    setMessage('');
+
+    if (!supabase || !email) {
+      setError('Enter your email first.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error: signInError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/portal`,
+      },
+    });
+
+    setIsSubmitting(false);
+
+    if (signInError) {
+      setError(signInError.message);
+      return;
+    }
+
+    setMessage('Check your email for the sign-in link.');
+  }
+
+  return (
+    <PortalShell eyebrow="PathFlow Portal" title="Sign in to your workspace.">
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="portal-card">
+          <h2 className="text-2xl font-semibold text-white">Projects, systems, and handoff notes.</h2>
+          <p className="mt-4 leading-7 text-white/65">
+            Consultants can manage client project workspaces. Clients can sign in
+            to see the systems, documents, dashboards, and automations built for them.
+          </p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            {['Client projects', 'System notes', 'Documents', 'Dashboards'].map((item) => (
+              <div className="border border-white/[0.08] bg-white/[0.025] p-4 text-sm font-medium text-white/75" key={item}>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="portal-card">
+          {!isSupabaseConfigured && <SupabaseSetupNotice />}
+
+          {isSupabaseConfigured && !authReady && (
+            <p className="text-sm text-white/65">Checking session...</p>
+          )}
+
+          {isSupabaseConfigured && authReady && session && (
+            <div>
+              <p className="text-sm uppercase tracking-[0.18em] text-white/55">Signed in</p>
+              <p className="mt-4 text-lg font-semibold text-white">{session.user.email}</p>
+              <a href="/portal" className="btn btn-primary mt-8">
+                Continue to portal
+                <ArrowRight size={18} />
+              </a>
+            </div>
+          )}
+
+          {isSupabaseConfigured && authReady && !session && (
+            <form className="space-y-5" onSubmit={handlePasswordSignIn}>
+              <div>
+                <label className="block text-sm font-medium text-white/75" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  className="mt-2 w-full border border-white/[0.12] bg-black px-4 py-3 text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/40"
+                  id="email"
+                  inputMode="email"
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  type="email"
+                  value={email}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-white/75" htmlFor="password">
+                  Password
+                </label>
+                <input
+                  className="mt-2 w-full border border-white/[0.12] bg-black px-4 py-3 text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/40"
+                  id="password"
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Password"
+                  type="password"
+                  value={password}
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-300">{error}</p>}
+              {message && <p className="text-sm text-white/70">{message}</p>}
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button className="btn btn-primary" disabled={isSubmitting} type="submit">
+                  Sign in
+                </button>
+                <button className="btn btn-secondary" disabled={isSubmitting} onClick={handleMagicLink} type="button">
+                  Email magic link
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </PortalShell>
+  );
+}
+
+function PortalPage({ authReady, session }) {
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
+  const [projects, setProjects] = React.useState([]);
+  const [projectsError, setProjectsError] = React.useState('');
+  const [isLoadingProjects, setIsLoadingProjects] = React.useState(false);
+  const role = getWorkspaceRole(session?.user);
+  const isConsultant = role === 'consultant';
+  const activeProjectCount = projects.filter(
+    (project) => !['complete', 'completed', 'archived'].includes(project.status),
+  ).length;
+  const projectCards = isConsultant
+    ? [
+        ['Client projects', String(projects.length), 'Visible workspaces'],
+        ['Open requests', '0', 'Needs review'],
+        ['Active builds', String(activeProjectCount), 'In progress'],
+      ]
+    : [
+        ['Your projects', String(projects.length), 'Shared with you'],
+        ['Shared documents', '0', 'Available files'],
+        ['Active builds', String(activeProjectCount), 'In progress'],
+      ];
+
+  React.useEffect(() => {
+    if (!supabase || !session) {
+      setProjects([]);
+      return undefined;
+    }
+
+    let isMounted = true;
+    setIsLoadingProjects(true);
+    setProjectsError('');
+
+    supabase
+      .from('client_projects')
+      .select('id, name, client_name, status, summary, updated_at')
+      .order('updated_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!isMounted) {
+          return;
+        }
+
+        if (error) {
+          setProjects([]);
+          setProjectsError(error.message);
+          setIsLoadingProjects(false);
+          return;
+        }
+
+        setProjects(data || []);
+        setIsLoadingProjects(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session]);
+
+  async function handleSignOut() {
+    if (!supabase) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    await supabase.auth.signOut();
+    window.location.assign('/');
+  }
+
+  return (
+    <PortalShell
+      eyebrow={isConsultant ? 'Consultant workspace' : 'Client workspace'}
+      title={isConsultant ? 'Client project control room.' : 'Your PathFlow projects.'}
+    >
+      {!isSupabaseConfigured && <SupabaseSetupNotice />}
+
+      {isSupabaseConfigured && !authReady && (
+        <div className="portal-card">
+          <p className="text-sm text-white/65">Loading workspace...</p>
+        </div>
+      )}
+
+      {isSupabaseConfigured && authReady && !session && (
+        <div className="portal-card flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Sign in required.</h2>
+            <p className="mt-3 text-white/65">Use your invited email to access this workspace.</p>
+          </div>
+          <a href="/login" className="btn btn-primary">
+            Log in
+          </a>
+        </div>
+      )}
+
+      {isSupabaseConfigured && authReady && session && (
+        <div className="space-y-6">
+          <div className="portal-card flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.18em] text-white/50">{role}</p>
+              <h2 className="mt-3 text-2xl font-semibold text-white">{session.user.email}</h2>
+            </div>
+            <button className="btn btn-muted" disabled={isSigningOut} onClick={handleSignOut} type="button">
+              {isSigningOut ? 'Signing out...' : 'Sign out'}
+            </button>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            {projectCards.map(([label, value, caption]) => (
+              <div className="portal-card" key={label}>
+                <p className="text-sm uppercase tracking-[0.18em] text-white/45">{label}</p>
+                <p className="mt-6 text-5xl font-semibold text-white">{value}</p>
+                <p className="mt-3 text-sm text-white/55">{caption}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="portal-card">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.18em] text-white/45">Projects</p>
+                <h2 className="mt-4 text-3xl font-semibold text-white">
+                  {isLoadingProjects ? 'Loading projects...' : projects.length > 0 ? 'Client project workspaces.' : 'No projects yet.'}
+                </h2>
+              </div>
+              <span className="text-sm text-white/45">PathFlow workspace</span>
+            </div>
+
+            {projectsError && (
+              <p className="mt-5 max-w-3xl text-sm leading-6 text-white/50">
+                {projectsError}
+              </p>
+            )}
+
+            {projects.length > 0 && (
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                {projects.map((project) => (
+                  <article className="border border-white/[0.08] bg-black/30 p-5" key={project.id}>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">{project.name}</h3>
+                        {project.client_name && (
+                          <p className="mt-2 text-sm text-white/50">{project.client_name}</p>
+                        )}
+                      </div>
+                      {project.status && (
+                        <span className="border border-white/[0.1] px-2.5 py-1 text-xs uppercase tracking-[0.14em] text-white/55">
+                          {project.status}
+                        </span>
+                      )}
+                    </div>
+                    {project.summary && (
+                      <p className="mt-5 leading-7 text-white/65">{project.summary}</p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </PortalShell>
+  );
+}
+
+function PortalShell({ eyebrow, title, children }) {
+  return (
+    <section className="relative isolate min-h-screen overflow-hidden pt-32 sm:pt-36">
+      <div className="absolute inset-0 -z-10 circuit-grid opacity-40" />
+      <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-6 lg:px-8 lg:pb-32">
+        <div className="mb-12 max-w-4xl">
+          <p className="eyebrow">{eyebrow}</p>
+          <h1 className="mt-4 max-w-5xl text-5xl font-semibold leading-[1.04] tracking-normal text-white sm:text-6xl lg:text-7xl">
+            {title}
+          </h1>
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function SupabaseSetupNotice() {
+  return (
+    <div>
+      <p className="text-sm uppercase tracking-[0.18em] text-white/50">Supabase</p>
+      <h2 className="mt-4 text-2xl font-semibold text-white">Auth is ready for project keys.</h2>
+      <p className="mt-4 leading-7 text-white/65">
+        Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env.local`,
+        then restart Vite.
+      </p>
+    </div>
+  );
+}
+
+function getWorkspaceRole(user) {
+  const role = user?.app_metadata?.role || user?.user_metadata?.role;
+
+  if (role === 'consultant' || role === 'admin') {
+    return 'consultant';
+  }
+
+  return 'client';
 }
 
 function Hero() {
