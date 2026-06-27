@@ -132,8 +132,7 @@ body {
   .service-card,
   .process-card,
   .work-card,
-  .plan-card,
-  .portal-card {
+  .plan-card {
     @apply border border-white/[0.095] p-6 sm:p-7;
     background: rgba(0, 0, 0, 0.28);
     box-shadow:
@@ -147,8 +146,7 @@ body {
   .service-card:hover,
   .process-card:hover,
   .work-card:hover,
-  .plan-card:hover,
-  .portal-card:hover {
+  .plan-card:hover {
     border-color: rgba(255, 255, 255, 0.095);
   }
 
