@@ -4454,6 +4454,7 @@ function ResourceHubHeader({ eyebrow, title, description }) {
 
 function ResourceListingItem({ item, variant = 'guide' }) {
   const isFeatured = variant === 'latest-featured';
+  const shouldShowImage = Boolean(item.image && (variant === 'latest-featured' || variant === 'latest'));
 
   return (
     <a href={item.path} className={`resource-listing-item resource-listing-item-${variant} group`}>
@@ -4462,6 +4463,7 @@ function ResourceListingItem({ item, variant = 'guide' }) {
         <h3>{item.shortTitle || item.title}</h3>
         <p>{item.description}</p>
         <ResourceTopicChips topics={item.topics.slice(0, isFeatured ? 4 : 3)} />
+        {shouldShowImage && <ResourceListingImage image={item.image} />}
       </div>
       <div className="resource-listing-footer">
         <span>{formatResourceDate(item.publishedAt)}</span>
@@ -4469,6 +4471,14 @@ function ResourceListingItem({ item, variant = 'guide' }) {
         <ArrowRight size={16} className="cta-arrow" aria-hidden="true" />
       </div>
     </a>
+  );
+}
+
+function ResourceListingImage({ image }) {
+  return (
+    <figure className="resource-listing-media" aria-label={image.alt}>
+      <img src={image.src} alt={image.alt} loading="lazy" />
+    </figure>
   );
 }
 

@@ -16,6 +16,10 @@ export const resourceArticles = [
       'Your CI/CD pipeline has dependencies too. A deployment can stop working even when the application has not changed, simply because the self-hosted runner under it is no longer supported.',
     readingTime: '11 min read',
     tags: ['GitHub Actions', 'Self-hosted runners', 'CI/CD', 'Deployment infrastructure'],
+    image: {
+      src: '/resources/github-self-hosted-runner-brownouts-2026.png',
+      alt: 'Dark server rack with a single amber status light representing self-hosted runner brownout risk.',
+    },
     seo: {
       title: 'GitHub Self-Hosted Runner Brownouts Start August 24, 2026',
       description:
@@ -369,6 +373,10 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
       'Retries are not automatically resilience. A retry is another request, and when a dependency is already unhealthy, uncontrolled retries can turn a partial failure into a wider outage.',
     readingTime: '13 min read',
     tags: ['Automation', 'Reliability', 'n8n', 'Architecture', 'Incident Analysis'],
+    image: {
+      src: '/resources/github-outage-retry-storm-workflow-design.png',
+      alt: 'Network cables and server lights representing retry traffic through overloaded automation dependencies.',
+    },
     seo: {
       title: "GitHub's 8-Hour Outage Is a Workflow Design Lesson",
       description:

@@ -34,6 +34,7 @@ const resourceArticleSeo = Object.fromEntries(
       title: article.seo.title,
       description: article.seo.description,
       ogTitle: article.seo.ogTitle,
+      ogImage: toAbsolutePublicUrl(article.seo.ogImage || article.image?.src),
       schemaType: 'Article',
       schemaName: article.title,
       datePublished: article.publishedAt,
@@ -195,6 +196,12 @@ export function getSeoForPath(pathname = '/') {
   };
 }
 
+function toAbsolutePublicUrl(src) {
+  if (!src) return undefined;
+  if (/^https?:\/\//.test(src)) return src;
+  return `${siteUrl}${src.startsWith('/') ? src : `/${src}`}`;
+}
+
 export function jsonLdForPath(pathname = '/') {
   const seo = getSeoForPath(pathname);
   const segments = seo.canonicalPath.split('/').filter(Boolean);
@@ -264,6 +271,7 @@ export function jsonLdForPath(pathname = '/') {
         headline: seo.schemaName || seo.title.replace(' | Pathflow', ''),
         description: seo.description,
         url: seo.canonicalUrl,
+        image: seo.ogImage,
         publisher: organization,
         author: organization,
         ...(seo.datePublished ? { datePublished: seo.datePublished } : {}),

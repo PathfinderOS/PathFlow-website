@@ -1008,6 +1008,33 @@ button:focus-visible {
   line-height: 1.2;
 }
 
+.resource-listing-media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin: clamp(1.25rem, 2.4vw, 1.8rem) 0 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #050505;
+}
+
+.resource-listing-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.resource-listing-item:hover .resource-listing-media img,
+.resource-listing-item:focus-visible .resource-listing-media img {
+  transform: scale(1.035);
+}
+
+.resource-listing-item-latest-featured .resource-listing-media {
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+}
+
 .resource-listing-footer {
   display: flex;
   flex-wrap: wrap;
@@ -1898,6 +1925,7 @@ button:focus-visible {
 
   .resource-listing-item-latest-featured {
     grid-row: span 2;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .resource-guide-list .resource-listing-item,
@@ -1910,6 +1938,18 @@ button:focus-visible {
   .resource-listing-item-latest,
   .resource-listing-item-latest-featured {
     align-content: space-between;
+  }
+
+  .resource-listing-item-latest-featured .resource-listing-body {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .resource-listing-item-latest-featured .resource-listing-media {
+    flex: 1 1 16rem;
+    min-height: 16rem;
+    aspect-ratio: auto;
   }
 
   .resource-filter-panel {
