@@ -13,7 +13,7 @@ export const resourceArticles = [
     description:
       'GitHub begins brownouts for outdated self-hosted Actions runners on August 24, 2026. Check runner versions, update behavior, deployment tests and fallback plans before enforcement.',
     dek:
-      'Your CI/CD pipeline has dependencies too. A deployment can stop working even when the application has not changed, simply because the self-hosted runner under it is no longer supported.',
+      'Your CI/CD pipeline has dependencies too. A supported application can still fail to deploy when the self-hosted runner underneath it ages out of GitHub\'s supported version window.',
     readingTime: '11 min read',
     tags: ['GitHub Actions', 'Self-hosted runners', 'CI/CD', 'Deployment infrastructure'],
     image: {
@@ -34,7 +34,7 @@ export const resourceArticles = [
           'GitHub is beginning brownouts for outdated self-hosted GitHub Actions runners on August 24, 2026 for GitHub Enterprise Cloud.',
           'The brownouts increase through September, and full enforcement begins September 25, 2026.',
           'During the rollout, unsupported runners may be unable to register. Existing registered runners can also eventually stop accepting workflow jobs if they fall behind the supported runner version window.',
-          'That failure can look confusing from the application side. The repository did not change. The deployment workflow did not change. The runner became an unsupported operational dependency.',
+          'From the application side, that failure can look confusing: the repository is unchanged, the deployment workflow is unchanged, and the runner has become an unsupported operational dependency.',
         ],
         questionsLabel: 'Runner brownout risk questions',
         questions: [
@@ -54,8 +54,8 @@ export const resourceArticles = [
           'For GitHub Enterprise Cloud, brownouts start August 24, 2026 and increase through September.',
           'Full enforcement starts September 25, 2026.',
           'Runner version 2.329.0 is the minimum for configuration and registration, but job execution has a moving support window because runners must keep up with new releases.',
-          'Do not only update the live machine. Update the scripts, images, templates and manifests that recreate it.',
-          'Run a real deployment before the brownout window. "Online" is not the same thing as "able to deploy production."',
+          'Update the live machine, plus the scripts, images, templates and manifests that recreate it.',
+          'Run a real deployment before the brownout window. An "online" runner still needs to prove it can deploy production.',
         ],
       },
       {
@@ -66,7 +66,7 @@ export const resourceArticles = [
           'Self-hosted runners are easy to lose track of once deployments start passing.',
           'Someone installs a GitHub self-hosted runner on a VPS, EC2 instance, Proxmox VM, Kubernetes node, Docker host, on-prem server or client-owned machine. The workflow goes green. The client stops thinking about it. Six months later, the runner may no longer have an active maintenance owner.',
           'That becomes a problem when GitHub changes the supported runner window.',
-          'If you manage client infrastructure, the runner is not just a CI/CD detail. It is part of the deployment path. It may hold access to build secrets, cloud credentials, SSH keys, container registries, production hosts and release automation.',
+          'For managed client infrastructure, the runner belongs in the deployment path. It may hold access to build secrets, cloud credentials, SSH keys, container registries, production hosts and release automation.',
         ],
         diagram: {
           kind: 'flow',
@@ -74,7 +74,7 @@ export const resourceArticles = [
           items: ['GitHub workflow', 'Self-hosted runner', 'Build and test', 'Deploy target', 'Production'],
         },
         emphasis:
-          'A common ticket is: "Nothing changed. Why did production stop deploying?" Sometimes the change is in the deployment infrastructure, not the application.',
+          'A common ticket is: "Nothing changed. Why did production stop deploying?" Sometimes the deployment infrastructure changed while the application stayed the same.',
       },
       {
         id: 'inventory-now',
@@ -112,14 +112,14 @@ export const resourceArticles = [
           },
         ],
         closing:
-          'If the runner location and owner are not written down, recovery depends on memory instead of process.',
+          'Write down the runner location and owner so recovery follows a process.',
       },
       {
         id: 'stale-provisioning',
         type: 'prose',
-        title: 'Check the provisioning source, not only the live runner',
+        title: 'Check the provisioning source and the live runner',
         paragraphs: [
-          'Manually updating the live runner is useful, but it is not enough if the next rebuild installs the old version again.',
+          'Manual updates help, but the next rebuild can still install the old version.',
           'Consultants often inherit systems where the production VM is newer than the template that creates it. That works until a recovery event, migration or rebuild reinstalls the unsupported runner.',
         ],
         listTitle: 'Look for stale runner installation logic in:',
@@ -135,14 +135,14 @@ export const resourceArticles = [
           'Actions Runner Controller values or Helm releases',
         ],
         emphasis:
-          'The source of truth has to be current, not just the machine that happens to be alive today.',
+          'The source of truth has to stay current alongside the machine that is alive today.',
       },
       {
         id: 'check-installed-version',
         type: 'prose',
         title: 'How to check the installed runner version on Linux',
         paragraphs: [
-          'Do not rely on a single GitHub CLI command here. Start from the runner host and the runner installation directory.',
+          'Start from the runner host and the runner installation directory before trusting summary data from GitHub settings or audit logs.',
           'The examples below assume a common install path such as /opt/actions-runner or ~/actions-runner. Adjust the path for your environment.',
         ],
         codeBlocks: [
@@ -176,7 +176,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         ],
         paragraphsAfter: [
           'GitHub also shows registered self-hosted runners in repository, organization or enterprise settings under Actions, then Runners. That view is useful for name, labels and status.',
-          'For larger organizations, GitHub notes that audit log registration events include runner version information, but those events are not a complete inventory of every connected runner. Treat them as one input, not the whole map.',
+          'For larger organizations, GitHub notes that audit log registration events include runner version information. Those events are one inventory input; combine them with host-level checks and runner settings.',
         ],
       },
       {
@@ -184,9 +184,9 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         type: 'prose',
         title: 'Verify update behavior',
         paragraphs: [
-          'A runner that currently works is not necessarily a runner that is being maintained.',
+          'A working runner may still lack a maintenance path.',
           'GitHub says runners with auto-update enabled satisfy the 30-day update requirement automatically as long as they can reach the update service. That last clause matters. Network rules, proxies, pinned containers and broken permissions can make "auto-update" misleading.',
-          'If automatic runner updates are deliberately disabled, the organization needs a real upgrade process. "We will remember to do it manually" is not a reliable control.',
+          'If automatic runner updates are deliberately disabled, the organization needs a real upgrade process with an owner, schedule and verification step.',
         ],
         listTitle: 'Confirm:',
         list: [
@@ -198,15 +198,15 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           'Who receives alerts when runner updates fail',
         ],
         emphasis:
-          'Version 2.329.0 is the registration floor, not a forever-safe version for running jobs.',
+          'Version 2.329.0 is the registration floor; job execution still follows GitHub\'s moving support window.',
       },
       {
         id: 'test-real-deployment',
         type: 'prose',
         title: 'Test a real deployment before the brownout window',
         paragraphs: [
-          'Seeing the runner as online is not enough validation.',
-          'Run a controlled deployment before the brownout window. Use a workflow that looks like the real production path, not a minimal smoke test that only proves the runner can start.',
+          'The online status alone proves very little.',
+          'Run a controlled deployment before the brownout window. Use a workflow that exercises the real production path, including checkout, build, secrets, deployment credentials and the deployment target.',
         ],
         examples: [
           {
@@ -223,7 +223,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           },
         ],
         emphasis:
-          'The deployment path is only proven when it deploys something real enough to exercise the dependencies that matter.',
+          'A deployment test should exercise the dependencies that matter.',
       },
       {
         id: 'document-fallback',
@@ -243,7 +243,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           'Pausing noncritical releases until the runner is updated and validated',
         ],
         emphasis:
-          'A fallback that only exists in someone\'s memory is not a fallback yet.',
+          'A useful fallback needs a written procedure, owner and trigger condition.',
       },
       {
         id: 'deployment-dependencies',
@@ -272,7 +272,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         type: 'prose',
         title: 'Make deprecations actionable',
         paragraphs: [
-          'A useful infrastructure record should track lifecycle state, not only architecture.',
+          'A useful infrastructure record should track lifecycle state alongside architecture.',
           'For a deployment resource, that means recording the runner version, update strategy, infrastructure location, owner, upstream deadline, dependent workflows and fallback procedure.',
         ],
         codeBlocks: [
@@ -290,7 +290,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         ],
         paragraphsAfter: [
           'That is the useful Pathflow angle: this upstream deadline affects this client deployment path, and someone owns the update.',
-          'Deprecations should become actionable client alerts instead of late-stage discovery work.',
+          'Deprecations should become actionable client alerts before they turn into late-stage discovery work.',
         ],
       },
       {
@@ -298,7 +298,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         type: 'checklist',
         title: 'Final checklist',
         paragraphs: [
-          'Before August 24, make the runner inventory complete enough that September enforcement does not block a deployment.',
+          'Before August 24, make the runner inventory complete enough to survive September enforcement without blocking a deployment.',
         ],
         listLabel: 'GitHub self-hosted runner brownout checklist',
         items: [
@@ -370,7 +370,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
     description:
       "GitHub's August 17 outage showed how retries can amplify failures. Design safer n8n and automation workflows with backoff, jitter, retry budgets, idempotency and queue limits.",
     dek:
-      'Retries are not automatically resilience. A retry is another request, and when a dependency is already unhealthy, uncontrolled retries can turn a partial failure into a wider outage.',
+      'Every retry is another request. When a dependency is already unhealthy, uncontrolled retries can turn a partial failure into a wider outage.',
     readingTime: '13 min read',
     tags: ['Automation', 'Reliability', 'n8n', 'Architecture', 'Incident Analysis'],
     image: {
@@ -390,7 +390,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         paragraphs: [
           'On August 17, 2026, GitHub experienced a major outage that lasted 7 hours and 47 minutes.',
           'GitHub.com, authentication, GitHub Actions, APIs, pull requests, issues and Copilot were disrupted. The incident began when traffic reached a new peak and a critical component in GitHub\'s Central US infrastructure failed to scale with it.',
-          'The workflow-design lesson is not only the initial capacity failure. During recovery, errors in some Copilot services triggered retry behavior that increased traffic and complicated restoration.',
+          'The workflow-design lesson sits in the recovery phase as much as the initial capacity failure. During recovery, errors in some Copilot services triggered retry behavior that increased traffic and complicated restoration.',
           'That recovery phase is the part automation consultants should focus on.',
         ],
         questionsLabel: 'Retry storm questions',
@@ -401,17 +401,17 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           'What happens when retrying makes the dependency worse?',
         ],
         closing:
-          'Retries are not automatically resilience. A retry is another request.',
+          'Every retry is another request.',
       },
       {
         id: 'short-version',
         type: 'short',
         title: 'The short version',
         paragraphs: [
-          'GitHub\'s August 17 outage was a GitHub-scale event, but the failure pattern is familiar at much smaller scale.',
+          'GitHub\'s August 17 outage was GitHub-scale. The failure pattern also appears in much smaller systems.',
           'An API slows down. Workflows fail. The workflows retry. More workflows fail and retry. Queues grow. Workers stay occupied. The dependency receives even more traffic exactly when it has the least spare capacity.',
           'That can happen in n8n, custom background jobs, Zapier-style automations, CRM integrations, document workflows, webhook processors and client deployment pipelines.',
-          'A resilient workflow is not one that retries forever. It is one that knows when to retry, when to wait and when to stop.',
+          'A resilient workflow needs retry rules, wait rules and stop rules.',
         ],
       },
       {
@@ -424,7 +424,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           'GitHub\'s remediation is also revealing: consistent retry limits, retry budgets and variable timeouts across service-to-service interactions, along with work to isolate critical systems and reduce shared dependencies.',
         ],
         emphasis:
-          'The postmortem is a reminder that retry behavior is part of system architecture, not a checkbox at the bottom of an HTTP node.',
+          'The postmortem treats retry behavior as system architecture: retry limits, retry budgets, variable timeouts and shared dependency isolation.',
       },
       {
         id: 'retry-amplification',
@@ -458,19 +458,19 @@ The failure becomes a retry storm`,
           },
         ],
         emphasis:
-          '"Retry on failure" is not a complete reliability strategy. Without limits, it can add load to the dependency that is already failing.',
+          'A retry setting without limits can add load to the dependency that is already failing.',
       },
       {
         id: 'classify-errors',
         type: 'prose',
-        title: 'Not every error should be retried',
+        title: 'Classify errors before retrying',
         paragraphs: [
           'The first design choice is error classification.',
           'Some failures are likely temporary. Others are telling you the request is wrong, the credentials are invalid or the business rule cannot be satisfied. Retrying those blindly just produces the same failure with extra load.',
         ],
         records: [
           {
-            title: 'Usually do not retry blindly',
+            title: 'Usually stop and inspect',
             fields: [
               { label: '400 Bad Request', value: 'The payload may be malformed or missing required fields.' },
               { label: '401 Unauthorized', value: 'Credentials may be invalid, expired or unavailable.' },
@@ -490,7 +490,7 @@ The failure becomes a retry storm`,
           },
         ],
         paragraphsAfter: [
-          'Exact policies depend on the API. The point is to decide intentionally instead of letting every error take the same path.',
+          'Exact policies depend on the API. The point is to choose the path for each error class intentionally.',
         ],
       },
       {
@@ -524,7 +524,7 @@ Attempt 4`,
           },
         ],
         emphasis:
-          'The goal is not to keep sending requests until something works. The goal is to give recovery a chance.',
+          'Backoff gives the dependency time to recover and spreads worker demand over a longer window.',
       },
       {
         id: 'jitter',
@@ -533,7 +533,7 @@ Attempt 4`,
         paragraphs: [
           'Backoff alone can still synchronize traffic.',
           'If 500 workflows all fail at 12:00:00 and all wait exactly 60 seconds, they may all retry together at 12:01:00. The retry policy has created a second traffic spike.',
-          'Jitter adds controlled randomness to the delay so retries spread across a window instead of forming another spike.',
+          'Jitter adds controlled randomness to the delay so retries spread across a window and avoid another spike.',
         ],
         codeBlocks: [
           {
@@ -577,7 +577,7 @@ Attempt 4`,
           'Escalate to an operator when the retry budget is exhausted.',
         ],
         emphasis:
-          'Infinite retries are not resilience. They are an uncontrolled load source.',
+          'Infinite retries create uncontrolled load.',
       },
       {
         id: 'idempotency',
@@ -620,8 +620,8 @@ provider_record:
         type: 'prose',
         title: 'Define dead-letter handling',
         paragraphs: [
-          'When retries are exhausted, the item should not disappear.',
-          'A dead-letter queue is simply a place where failed work goes after the automatic path gives up. It does not have to be Kafka to count. It can be a database table, a CRM task, a Notion queue, a Slack alert linked to stored payload data or a Pathflow request record.',
+          'When retries are exhausted, preserve the item for review.',
+          'A dead-letter queue is simply a place where failed work goes after the automatic path gives up. It can be a database table, a CRM task, a Notion queue, a Slack alert linked to stored payload data or a Pathflow request record.',
         ],
         listTitle: 'After retries are exhausted:',
         list: [
@@ -633,7 +633,7 @@ provider_record:
           'Allow explicit retry after the dependency recovers.',
         ],
         emphasis:
-          'Automatic failure handling should create a better human decision point, not a quieter data-loss event.',
+          'Automatic failure handling should create a better human decision point and preserve the failed work.',
       },
       {
         id: 'queue-concurrency-limits',
@@ -676,7 +676,7 @@ provider_record:
           },
         ],
         paragraphsAfter: [
-          'Many small deployments do not need a formal circuit-breaker library. The architectural principle matters more than the terminology.',
+          'Many small deployments can apply the circuit-breaker idea without adopting a formal library.',
           'In n8n, for example, a workflow can check a dependency-health record before processing another batch and route non-critical work into a wait or review path when the dependency is unhealthy.',
         ],
       },
@@ -686,8 +686,8 @@ provider_record:
         title: 'Some workflows should simply wait',
         paragraphs: [
           'Consultants often build workflows as if every task must complete immediately.',
-          'Many do not.',
-          'If a dependency is degraded, the safest response may be to queue the work and revisit it later. That is not failure. That is the workflow distinguishing immediate work from work that can be delayed.',
+          'A lot of them can wait.',
+          'If a dependency is degraded, the safest response may be to queue the work and revisit it later. That decision separates immediate work from work that can be delayed.',
         ],
         records: [
           {
@@ -695,9 +695,9 @@ provider_record:
             fields: [
               { label: 'Analytics synchronization', value: 'Delay until the provider recovers.' },
               { label: 'CRM enrichment', value: 'Queue enrichment without blocking lead capture.' },
-              { label: 'Reporting', value: 'Run later instead of retrying through an outage.' },
+              { label: 'Reporting', value: 'Run later during an outage.' },
               { label: 'Document classification', value: 'Preserve the document and classify asynchronously.' },
-              { label: 'Nightly exports', value: 'Skip or defer rather than overload the dependency.' },
+              { label: 'Nightly exports', value: 'Skip or defer while the dependency is degraded.' },
             ],
           },
           {
@@ -705,7 +705,7 @@ provider_record:
             fields: [
               { label: 'Payment processing', value: 'Avoid duplicate writes and alert quickly.' },
               { label: 'Authentication', value: 'Treat as client-facing availability risk.' },
-              { label: 'Security events', value: 'Escalate instead of waiting silently.' },
+              { label: 'Security events', value: 'Escalate with a visible alert.' },
               { label: 'Transactional client operations', value: 'Define user-visible behavior and support response.' },
             ],
           },
@@ -753,14 +753,14 @@ Classify failure
         type: 'prose',
         title: 'How this translates to n8n',
         paragraphs: [
-          'In n8n, the principle is not "turn on every retry setting." The principle is to make failure behavior visible in the workflow design.',
+          'In n8n, make failure behavior visible in the workflow design before enabling retry settings broadly.',
           'The HTTP Request node supports retry settings such as max tries and wait between tries. Workflow settings can include error workflows and timeouts. Wait nodes can pause an execution and resume later. Queue mode and concurrency settings matter when self-hosting or running larger deployments.',
           'Those are ingredients. The recipe still needs judgment.',
         ],
         listTitle: 'In practical n8n terms, consider:',
         list: [
           'Use error workflows for alerting and persistent failure records.',
-          'Use Wait nodes for controlled delays instead of tight retry loops.',
+          'Use Wait nodes for controlled delays and scheduled resumption.',
           'Keep explicit retry counters when building custom retry branches.',
           'Respect Retry-After or provider rate-limit guidance when available.',
           'Use execution timeout settings so slow dependencies do not occupy workers forever.',
@@ -774,10 +774,10 @@ Classify failure
       {
         id: 'pathflow-connection',
         type: 'prose',
-        title: 'Document failure behavior, not only components',
+        title: 'Document failure behavior alongside components',
         paragraphs: [
           'Architecture documentation often stops at "Workflow talks to Google Drive API."',
-          'That is useful, but incomplete. The more operational question is: what happens when Google Drive stops responding, rate-limits the workflow or accepts the write but times out before returning a response?',
+          'That is useful and incomplete. The more operational question is: what happens when Google Drive stops responding, rate-limits the workflow or accepts the write but times out before returning a response?',
           'A client system map becomes more useful when it records failure policy, ownership and degraded behavior beside the dependency itself.',
         ],
         codeBlocks: [
@@ -839,7 +839,7 @@ Queue new uploads`,
           'Test failure scenarios intentionally.',
         ],
         closing:
-          'A resilient workflow is not one that retries forever. It is one that knows when to retry, when to wait, and when to stop.',
+          'A resilient workflow needs clear retry, wait and stop conditions.',
       },
       {
         id: 'related-resources',
@@ -867,7 +867,7 @@ Queue new uploads`,
           {
             label: 'Your VPS Is Running XMRig. Now What?',
             href: '/resources/your-vps-is-running-xmrig-now-what',
-            description: 'Respond to runtime failure as an operational incident, not only a symptom.',
+            description: 'Respond to runtime failure with evidence, containment and a trustworthy rebuild.',
           },
         ],
       },
