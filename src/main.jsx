@@ -4555,8 +4555,17 @@ function ResourceArticleHero({ article }) {
           <li>{formatResourceDate(article.publishedAt)}</li>
           <li>{article.readingTime}</li>
         </ul>
+        {article.image && <ResourceArticleHeroImage image={article.image} />}
       </div>
     </header>
+  );
+}
+
+function ResourceArticleHeroImage({ image }) {
+  return (
+    <figure className="resource-article-hero-media">
+      <img src={image.src} alt={image.alt} />
+    </figure>
   );
 }
 
