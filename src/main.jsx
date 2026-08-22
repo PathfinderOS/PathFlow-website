@@ -4454,7 +4454,7 @@ function ResourceHubHeader({ eyebrow, title, description }) {
 
 function ResourceListingItem({ item, variant = 'guide' }) {
   const isFeatured = variant === 'latest-featured';
-  const shouldShowImage = Boolean(item.image && (variant === 'latest-featured' || variant === 'latest'));
+  const shouldShowImage = Boolean(item.image && isFeatured);
 
   return (
     <a href={item.path} className={`resource-listing-item resource-listing-item-${variant} group`}>
