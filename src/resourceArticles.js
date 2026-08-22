@@ -1,5 +1,358 @@
 export const resourceArticles = [
   {
+    path: '/resources/github-self-hosted-runner-brownouts-2026',
+    slug: 'github-self-hosted-runner-brownouts-2026',
+    category: 'DevOps',
+    type: 'guide',
+    topics: ['DevOps', 'Infrastructure', 'Operations'],
+    status: 'published',
+    publishedAt: '2026-08-22',
+    eyebrow: 'Resources / DevOps',
+    title: 'GitHub Self-Hosted Runner Brownouts Start August 24: Check Your Deployment Infrastructure',
+    shortTitle: 'GitHub Self-Hosted Runner Brownouts',
+    description:
+      'GitHub begins brownouts for outdated self-hosted Actions runners on August 24, 2026. Check runner versions, update behavior, deployment tests and fallback plans before enforcement.',
+    dek:
+      'Your CI/CD pipeline has dependencies too. A deployment can stop working even when the application has not changed, simply because the self-hosted runner under it is no longer supported.',
+    readingTime: '11 min read',
+    tags: ['GitHub Actions', 'Self-hosted runners', 'CI/CD', 'Deployment infrastructure'],
+    seo: {
+      title: 'GitHub Self-Hosted Runner Brownouts Start August 24, 2026',
+      description:
+        'GitHub begins brownouts for outdated self-hosted Actions runners on August 24, 2026. Learn how to inventory runners, verify updates, test deployments, and avoid surprise CI/CD failures.',
+      ogTitle: 'GitHub Self-Hosted Runner Brownouts Start August 24, 2026',
+    },
+    sections: [
+      {
+        id: 'intro',
+        type: 'intro',
+        paragraphs: [
+          'GitHub is beginning brownouts for outdated self-hosted GitHub Actions runners on August 24, 2026 for GitHub Enterprise Cloud.',
+          'The brownouts increase through September, and full enforcement begins September 25, 2026.',
+          'During the rollout, unsupported runners may be unable to register. Existing registered runners can also eventually stop accepting workflow jobs if they fall behind the supported runner version window.',
+          'That failure can look confusing from the application side. The repository did not change. The deployment workflow did not change. The runner quietly became an unsupported operational dependency.',
+        ],
+        questionsLabel: 'Runner brownout risk questions',
+        questions: [
+          'Where are the self-hosted runners?',
+          'Which workflows depend on them?',
+          'Are they actually updating?',
+          'What happens if one stops accepting jobs?',
+        ],
+        closing:
+          'The application can be healthy while the deployment path underneath it is aging out.',
+      },
+      {
+        id: 'short-version',
+        type: 'short',
+        title: 'The short version',
+        paragraphs: [
+          'For GitHub Enterprise Cloud, brownouts start August 24, 2026 and increase through September.',
+          'Full enforcement starts September 25, 2026.',
+          'Runner version 2.329.0 is the minimum for configuration and registration, but job execution has a moving support window because runners must keep up with new releases.',
+          'Do not only update the live machine. Update the scripts, images, templates and manifests that recreate it.',
+          'Run a real deployment before the brownout window. "Online" is not the same thing as "able to deploy production."',
+        ],
+      },
+      {
+        id: 'why-consultants-should-care',
+        type: 'prose',
+        title: 'Why consultants should care',
+        paragraphs: [
+          'Self-hosted runners are exactly the kind of infrastructure that disappears after it starts working.',
+          'Someone installs a GitHub self-hosted runner on a VPS, EC2 instance, Proxmox VM, Kubernetes node, Docker host, on-prem server or client-owned machine. The workflow goes green. The client stops thinking about it. Six months later, the runner is just part of the floor.',
+          'That is fine until the floor moves.',
+          'If you manage client infrastructure, the runner is not just a CI/CD detail. It is part of the deployment path. It may hold access to build secrets, cloud credentials, SSH keys, container registries, production hosts and release automation.',
+        ],
+        diagram: {
+          kind: 'flow',
+          label: 'Deployment path with a self-hosted runner dependency',
+          items: ['GitHub workflow', 'Self-hosted runner', 'Build and test', 'Deploy target', 'Production'],
+        },
+        emphasis:
+          'The classic ticket is: "Nothing changed. Why did production stop deploying?" Sometimes the answer is: the thing that deploys production changed under you.',
+      },
+      {
+        id: 'inventory-now',
+        type: 'checklist',
+        title: 'What to inventory now',
+        paragraphs: [
+          'Start with a boring inventory. Boring is good here. Boring means the future outage has fewer places to hide.',
+          'For each GitHub self-hosted runner, record enough information that someone else can find it, understand what depends on it and decide how it should be maintained.',
+        ],
+        listLabel: 'Self-hosted runner inventory checklist',
+        groups: [
+          {
+            title: 'Runner record',
+            items: [
+              'Runner name',
+              'Hostname or infrastructure location',
+              'Environment: production, staging or development',
+              'Current GitHub Actions runner version',
+              'Runner labels',
+              'Repository, organization or enterprise ownership',
+              'Workflows that target the runner labels',
+              'Secrets, credentials or deployment permissions available to jobs',
+            ],
+          },
+          {
+            title: 'Maintenance record',
+            items: [
+              'Whether auto-update is enabled',
+              'Whether auto-update is actually working',
+              'Who owns runner maintenance',
+              'How runner updates are tested',
+              'Fallback deployment method',
+              'Date the record was last verified',
+            ],
+          },
+        ],
+        closing:
+          'If the only person who knows where the runner lives is "future me," future me is about to open a very annoying support ticket.',
+      },
+      {
+        id: 'stale-provisioning',
+        type: 'prose',
+        title: 'Check the provisioning source, not only the live runner',
+        paragraphs: [
+          'Manually updating the live runner is useful, but it is not enough if the next rebuild installs the old version again.',
+          'Consultants often inherit systems where the production VM is newer than the template that creates it. That works until a recovery event, migration or rebuild quietly resurrects the unsupported runner.',
+        ],
+        listTitle: 'Look for stale runner installation logic in:',
+        list: [
+          'Terraform',
+          'cloud-init',
+          'Dockerfiles',
+          'VM templates',
+          'AMIs or other machine images',
+          'Ansible roles and playbooks',
+          'Shell installation scripts',
+          'Kubernetes manifests',
+          'Actions Runner Controller values or Helm releases',
+        ],
+        emphasis:
+          'The source of truth has to be current, not just the machine that happens to be alive today.',
+      },
+      {
+        id: 'check-installed-version',
+        type: 'prose',
+        title: 'How to check the installed runner version on Linux',
+        paragraphs: [
+          'There is no magic GitHub CLI command you should rely on here. Start from the runner host and the runner installation directory.',
+          'The examples below assume a common install path such as /opt/actions-runner or ~/actions-runner. Adjust the path for your environment.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Find runner services and installation hints',
+            code: `systemctl --type=service --all | grep actions.runner || true
+
+sudo find /opt /home -maxdepth 3 -name svc.sh -path '*actions-runner*' 2>/dev/null`,
+          },
+          {
+            label: 'Inspect the runner directory and service status',
+            code: `cd /opt/actions-runner
+
+cat .service 2>/dev/null || true
+./svc.sh status
+
+SERVICE="$(cat .service 2>/dev/null)"
+test -n "$SERVICE" && systemctl status "$SERVICE" --no-pager`,
+          },
+          {
+            label: 'Look for installed version and update activity',
+            code: `cd /opt/actions-runner
+
+ls -d bin.* externals.* 2>/dev/null || true
+grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log 2>/dev/null | tail -50`,
+          },
+          {
+            label: 'Screenshot placeholder',
+            code: `[Screenshot: terminal showing installed GitHub Actions runner version and service status]`,
+          },
+        ],
+        paragraphsAfter: [
+          'GitHub also shows registered self-hosted runners in repository, organization or enterprise settings under Actions, then Runners. That view is useful for name, labels and status.',
+          'For larger organizations, GitHub notes that audit log registration events include runner version information, but those events are not a complete inventory of every connected runner. Treat them as one input, not the whole map.',
+        ],
+      },
+      {
+        id: 'verify-update-behavior',
+        type: 'prose',
+        title: 'Verify update behavior',
+        paragraphs: [
+          'A runner that currently works is not necessarily a runner that is being maintained.',
+          'GitHub says runners with auto-update enabled satisfy the 30-day update requirement automatically as long as they can reach the update service. That last clause matters. Network rules, proxies, pinned containers and broken permissions can turn "auto-update" into a decorative checkbox.',
+          'If automatic runner updates are deliberately disabled, the organization needs a real upgrade process. "We will remember to do it manually" is not a process. It is a calendar event waiting to be missed.',
+        ],
+        listTitle: 'Confirm:',
+        list: [
+          'Auto-update policy for each runner',
+          'Network access to GitHub runner update endpoints',
+          'Recent SelfUpdate logs in the runner _diag directory',
+          'Whether containerized runners rebuild from a current image',
+          'Whether Kubernetes or ARC-managed runners have update behavior intentionally configured',
+          'Who receives alerts when runner updates fail',
+        ],
+        emphasis:
+          'Version 2.329.0 is the registration floor, not a forever-safe version for running jobs.',
+      },
+      {
+        id: 'test-real-deployment',
+        type: 'prose',
+        title: 'Test a real deployment before the brownout window',
+        paragraphs: [
+          'Seeing the runner as online is not enough validation.',
+          'Run a controlled deployment before the brownout window. Use a workflow that looks like the real production path, not a toy workflow that echoes hello and calls it a day.',
+        ],
+        examples: [
+          {
+            label: 'Deployment validation',
+            title: 'Representative workflow test',
+            items: [
+              'Trigger a representative workflow.',
+              'Confirm the intended self-hosted runner accepts the job.',
+              'Confirm checkout, build and test steps succeed.',
+              'Confirm secrets and deployment credentials still work.',
+              'Confirm the actual deployment completes.',
+              'Verify production health afterward.',
+            ],
+          },
+        ],
+        emphasis:
+          'The deployment path is only proven when it deploys something real enough to exercise the dependencies that matter.',
+      },
+      {
+        id: 'document-fallback',
+        type: 'prose',
+        title: 'Document the fallback',
+        paragraphs: [
+          'If the self-hosted Actions runner becomes unavailable during a client deployment, what happens next?',
+          'That answer should exist before production is waiting. Inventing a deployment fallback while a release is blocked is a little too spicy for ordinary business operations.',
+        ],
+        listTitle: 'Possible fallback strategies include:',
+        list: [
+          'Temporary GitHub-hosted runner if the workflow and network model allow it',
+          'Secondary self-hosted runner with the same required labels and permissions',
+          'Manual deployment procedure with clear rollback steps',
+          'Alternate deployment environment',
+          'Rebuilding a runner from a current image or template',
+          'Pausing noncritical releases until the runner is updated and validated',
+        ],
+        emphasis:
+          'A fallback that only exists in someone\'s memory is not a fallback yet.',
+      },
+      {
+        id: 'deployment-dependencies',
+        type: 'prose',
+        title: 'Deployment infrastructure has dependencies too',
+        paragraphs: [
+          'Teams are usually better at documenting application dependencies than operational dependencies.',
+          'They know the Node version, database version and external API used by the app. They are less likely to document the CI runner, deployment agent, container image, cloud API assumptions, credentials, certificates, webhook endpoints and upstream support deadlines that make the deployment path work.',
+          'The GitHub self-hosted runner brownouts are a reminder that deployment infrastructure has a lifecycle. It can age out even while the application is untouched.',
+        ],
+        listTitle: 'Operational dependencies worth tracking:',
+        list: [
+          'CI runners',
+          'Runtime versions',
+          'Container images',
+          'Cloud APIs',
+          'Credentials and token expiry',
+          'Deployment agents',
+          'Certificates',
+          'External services',
+          'Upstream support deadlines',
+        ],
+      },
+      {
+        id: 'pathflow-connection',
+        type: 'prose',
+        title: 'Make deprecations actionable',
+        paragraphs: [
+          'A useful infrastructure record should track lifecycle state, not only architecture.',
+          'For a deployment resource, that means recording the runner version, update strategy, infrastructure location, owner, upstream deadline, dependent workflows and fallback procedure.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Deployment resource record',
+            code: `Deployment
+|-- GitHub Actions Runner
+|-- Version: 2.x.x
+|-- Host: production-vps-01
+|-- Owner: Consultant
+|-- Update policy: Automatic
+|-- Dependent workflows: Deploy Production
+\\-- Upstream deadline: September 25, 2026`,
+          },
+        ],
+        paragraphsAfter: [
+          'That is the useful Pathflow angle: not "look, another system diagram," but "this upstream deadline affects this client deployment path, and someone owns the update."',
+          'Deprecations should become actionable client alerts instead of archaeological surprises.',
+        ],
+      },
+      {
+        id: 'final-checklist',
+        type: 'checklist',
+        title: 'Final checklist',
+        paragraphs: [
+          'Before August 24, make the runner inventory boring enough that September does not become exciting.',
+        ],
+        listLabel: 'GitHub self-hosted runner brownout checklist',
+        items: [
+          'Inventory every self-hosted runner.',
+          'Check installed runner versions.',
+          'Confirm auto-update behavior or document the manual update process.',
+          'Fix stale provisioning templates, scripts, images and manifests.',
+          'Identify workflows that depend on self-hosted runner labels.',
+          'Run a representative deployment test.',
+          'Document runner ownership.',
+          'Document the fallback deployment path.',
+          'Record September 25, 2026 as the GitHub Enterprise Cloud full enforcement date.',
+        ],
+      },
+      {
+        id: 'related-resources',
+        type: 'prose',
+        title: 'Related resources',
+        paragraphs: [
+          'These related resources cover the infrastructure baseline and handoff context around client systems that need to keep deploying after the initial build.',
+        ],
+        relatedLinks: [
+          {
+            label: 'How to Secure a Client VPS Before You Deploy Anything',
+            href: '/resources/secure-client-vps-before-deployment',
+            description: 'Establish the access, patching, Docker, secrets, backup, monitoring and ownership baseline before deployment.',
+          },
+          {
+            label: 'What to Document Before an Automation Consultant Leaves',
+            href: '/resources/automation-consultant-handoff-documentation',
+            description: 'Document ownership, credentials, hosting, deployments, monitoring and recovery paths before the work is handed off.',
+          },
+        ],
+      },
+      {
+        id: 'sources',
+        type: 'sources',
+        title: 'Sources',
+      },
+    ],
+    sources: [
+      {
+        label: 'GitHub Actions: Minimum version enforcement timeline for self-hosted runners',
+        provider: 'GitHub Changelog',
+        href: 'https://github.blog/changelog/2026-06-12-github-actions-minimum-version-enforcement-timeline-for-self-hosted-runners/',
+        description:
+          'Official GitHub announcement for the self-hosted runner minimum version requirements, brownout schedule and September 25, 2026 enforcement date for GitHub Enterprise Cloud.',
+      },
+      {
+        label: 'Monitoring and troubleshooting self-hosted runners',
+        provider: 'GitHub Docs',
+        href: 'https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/monitor-and-troubleshoot',
+        description:
+          'Official GitHub documentation for checking runner status, using systemd and journalctl, reviewing _diag logs and monitoring automatic update activity.',
+      },
+    ],
+  },
+  {
     path: '/resources/zapier-vs-n8n-client-automation',
     slug: 'zapier-vs-n8n-client-automation',
     category: 'Automation',

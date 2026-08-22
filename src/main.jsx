@@ -4542,6 +4542,7 @@ function ResourceArticleHero({ article }) {
           {article.tags.map((tag) => (
             <li key={tag}>{tag}</li>
           ))}
+          <li>{formatResourceDate(article.publishedAt)}</li>
           <li>{article.readingTime}</li>
         </ul>
       </div>
