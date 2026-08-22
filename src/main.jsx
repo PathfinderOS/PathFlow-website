@@ -1012,7 +1012,56 @@ const servicePages = {
           'No. Many business websites should stay lightweight. Pathflow adds custom backend pieces only when the workflow needs them.',
       },
     ],
-    adjacent: ['/services/lead-intake-automation', '/services/dashboards-reporting', '/services/managed-automation'],
+    adjacent: ['/services/lead-intake-automation', '/services/custom-apps', '/services/managed-automation'],
+  },
+  '/services/custom-apps': {
+    navLabel: 'Custom Apps & Portals',
+    eyebrow: 'Custom Apps & Portals',
+    title: 'Custom tools for the workflow gaps your software does not cover.',
+    summary:
+      'Pathflow builds focused internal apps, client portals, admin panels, dashboards, forms, and database-backed tools that connect to the systems your business already uses.',
+    shortDescription:
+      'Internal tools, portals, admin panels, intake review screens, workflow controls, and hosted apps.',
+    icon: Code2,
+    problems: [
+      'Important work is trapped in spreadsheets, inboxes, or manual admin steps.',
+      'The CRM or automation platform works, but the team needs a better interface.',
+      'Staff need a safer way to review, route, approve, or trigger workflow actions.',
+      'A full software product would be too much, but a focused tool would remove daily friction.',
+    ],
+    flow: ['User action', 'Custom interface', 'Database', 'Workflow logic', 'CRM or app update', 'Alert', 'Review'],
+    capabilities: [
+      'Custom internal apps',
+      'Client portals and intake review screens',
+      'Admin panels and workflow control panels',
+      'Document and lead status trackers',
+      'Database-backed forms and approval tools',
+      'CRM-connected operational tools',
+      'API-connected dashboards and reporting interfaces',
+      'Hosted app deployment, updates, and maintenance',
+    ],
+    tools: ['React', 'Databases', 'APIs', 'n8n', 'Cloudflare', 'GitHub', 'CRMs', 'Dashboards'],
+    approach: [
+      'Define the workflow gap before choosing the interface.',
+      'Keep the tool focused on the decision or action the team needs.',
+      'Connect it to existing systems instead of creating another disconnected island.',
+      'Document hosting, data flow, ownership, and maintenance expectations.',
+    ],
+    proof:
+      'Pathflow custom app work usually sits between the website, CRM, automation layer, database, and reporting needs when off-the-shelf tools do not quite fit.',
+    faqs: [
+      {
+        question: 'Is this the same as building a full SaaS product?',
+        answer:
+          'No. Most custom app work is smaller and more operational: a portal, dashboard, admin panel, review queue, form, or control surface for an existing workflow.',
+      },
+      {
+        question: 'Can a custom app connect to our CRM or automations?',
+        answer:
+          'Yes. These tools are most useful when they connect to the CRM, database, forms, n8n workflows, document systems, or reporting layer already used by the business.',
+      },
+    ],
+    adjacent: ['/services/workflow-automation', '/services/connected-websites', '/services/dashboards-reporting'],
   },
   '/services/dashboards-reporting': {
     navLabel: 'Dashboards & Reporting',
@@ -1168,6 +1217,7 @@ const serviceNavItems = [
   '/services/lead-intake-automation',
   '/services/workflow-automation',
   '/services/connected-websites',
+  '/services/custom-apps',
   '/services/dashboards-reporting',
   '/services/managed-automation',
 ].map((path) => ({
@@ -1960,6 +2010,7 @@ function BusinessesPage() {
           '/services/crm-automation',
           '/services/workflow-automation',
           '/services/connected-websites',
+          '/services/custom-apps',
           '/services/dashboards-reporting',
           '/services/managed-automation',
         ]} />
@@ -2042,6 +2093,7 @@ function ServicesLandingPage() {
           '/services/lead-intake-automation',
           '/services/workflow-automation',
           '/services/connected-websites',
+          '/services/custom-apps',
           '/services/dashboards-reporting',
           '/services/managed-automation',
           '/services/n8n-automation',
@@ -3855,25 +3907,25 @@ function McpPromptSection() {
   return (
     <section className="mcp-section mcp-section-tight">
       <div className="mcp-prose">
-        <p className="eyebrow">Small prompts, more context</p>
-        <h2>The prompt can stay small.</h2>
-        <p>A client submits a request.</p>
+        <p className="eyebrow">MCP context</p>
+        <h2>The instruction does not need to carry the whole project.</h2>
+        <p>A client submits a request in Pathflow.</p>
         <p>
-          Pathflow already knows which project it belongs to, what resources surround it, what architecture has been documented, which tasks are open, and what the current delivery state looks like.
+          The request is already attached to the project, documented architecture, surrounding resources, open tasks, and current delivery state.
         </p>
-        <p>An agent can retrieve that context through MCP.</p>
-        <PromptExample text="fulfill the latest request" />
-        <p>That can be enough when the surrounding project context already exists.</p>
-        <p className="mcp-strong-line">The most important part of the prompt is everything you don't have to put in it.</p>
+        <p>Through MCP, an agent can retrieve the relevant context before it acts.</p>
+        <PromptExample text="Review the accepted request and prepare the update." />
+        <p>The instruction stays short because the project record carries the details.</p>
+        <p className="mcp-strong-line">The useful part is not the wording. It is the context behind it.</p>
       </div>
     </section>
   );
 }
 
-function PromptExample({ text }) {
+function PromptExample({ text, label = 'Example instruction' }) {
   return (
     <figure className="mcp-prompt-example">
-      <figcaption>Real-world prompt</figcaption>
+      <figcaption>{label}</figcaption>
       <pre><code>{text}</code></pre>
     </figure>
   );
@@ -4160,10 +4212,10 @@ function McpProofSection() {
         </div>
         <div>
           <p>Farm Financing Ontario was first built as a complete website, intake, CRM, deployment, and SEO system.</p>
-          <p>Once that context existed in Pathflow, a routine maintenance request could be handled from a short instruction:</p>
-          <PromptExample text="fulfill the latest request" />
+          <p>Once that context existed in Pathflow, routine maintenance no longer needed a long re-explanation:</p>
+          <PromptExample text="Review the accepted request and update the site." />
           <p>
-            Pathflow supplied the surrounding project and request context. The update could be completed, recorded in Pathflow, handed off, and returned to the client without making the prompt the whole project.
+            Pathflow supplied the surrounding project and request context. The update could be completed, recorded in Pathflow, handed off, and returned to the client without rebuilding the project history inside the agent session.
           </p>
           <a href="/work/farm-financing-ontario" className="btn btn-primary mt-6 group">
             Read the Farm Financing Ontario case study

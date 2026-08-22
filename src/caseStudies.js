@@ -72,7 +72,7 @@ export const caseStudies = [
           'Farm Financing Ontario needed more than a brochure page.',
           'The project had to introduce a rural and farm mortgage financing brand, explain the service categories clearly, collect usable financing review leads, protect the CRM endpoint, launch on the client domain, and create enough search infrastructure to support ongoing article publishing.',
           'Pathflow delivered the public website and the operational path behind it: React and TypeScript frontend, secure Cloudflare Worker intake, Turnstile verification, CRM webhook delivery, GitHub Pages deployment, domain configuration, robots and sitemap assets, blog structure, and ongoing SEO maintenance.',
-          'The later Pathflow MCP oneshot prompt is part of the story, but it is not the whole story. It is the finishing layer that makes the launched site easier to maintain after the real build exists.',
+          'The later Pathflow MCP workflow is part of the story, but it is not the whole story. It is the maintenance layer that makes the launched site easier to change after the real build exists.',
         ],
       },
       {
@@ -210,7 +210,7 @@ export const caseStudies = [
           'After launch, the value of Pathflow MCP was continuity.',
           'The client did not need to know where the repository lived, which deployment process was used, how Cloudflare fit into the lead intake path, where the GoDaddy domain was managed, or how the completed work should be handed back. They could just submit the change request in Pathflow.',
           'Because the project context already existed in Pathflow, the consultant did not have to reconstruct the system before acting. The agent could see the accepted request in relation to the documented resources: GitHub, Cloudflare, GoDaddy, deployment notes, content structure, assets, and handoff workflow.',
-          'That is what made a oneshot instruction useful. The consultant could tell their agent, “fulfill the latest request,” and the agent had enough context to update the site, follow the existing delivery path, record the work, and send the client the handoff.',
+          'That is what made a short instruction useful. The consultant could ask the agent to review the accepted request and apply the update, with enough context to follow the existing delivery path, record the work, and send the client the handoff.',
         ],
         emphasis: [
           'The client gets an easy way to ask for changes.',

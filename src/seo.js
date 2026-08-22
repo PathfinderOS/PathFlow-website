@@ -134,6 +134,13 @@ export const routeSeo = {
     schemaType: 'Service',
     schemaName: 'Connected websites',
   },
+  '/services/custom-apps': {
+    title: 'Custom Internal Apps & Portals | Pathflow',
+    description:
+      'Focused internal tools, client portals, admin panels, dashboards, forms, and database-backed apps connected to your business systems.',
+    schemaType: 'Service',
+    schemaName: 'Custom internal apps and portals',
+  },
   '/services/dashboards-reporting': {
     title: 'Dashboards & Reporting | Pathflow',
     description:
@@ -164,6 +171,11 @@ export function normalizePath(pathname = '/') {
   return normalized;
 }
 
+export function getPublicUrlForPath(pathname = '/') {
+  const normalized = normalizePath(pathname);
+  return normalized === '/' ? siteUrl : `${siteUrl}${normalized}/`;
+}
+
 export function getCanonicalPath(pathname = '/') {
   const normalized = normalizePath(pathname);
   return legacyRouteMap[normalized] || normalized;
@@ -177,7 +189,7 @@ export function getSeoForPath(pathname = '/') {
   return {
     ...route,
     canonicalPath,
-    canonicalUrl: `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`,
+    canonicalUrl: getPublicUrlForPath(canonicalPath),
     ogImage: route.ogImage || defaultOgImage,
     robots: normalized === canonicalPath ? 'index,follow' : 'noindex,follow',
   };
@@ -225,7 +237,7 @@ export function jsonLdForPath(pathname = '/') {
       '@type': 'ListItem',
       position: 2,
       name: group === 'services' ? 'Services' : titleCase(group),
-      item: `${siteUrl}/${group}`,
+      item: getPublicUrlForPath(`/${group}`),
     });
   }
 
