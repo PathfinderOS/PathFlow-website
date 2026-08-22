@@ -34,7 +34,7 @@ export const resourceArticles = [
           'GitHub is beginning brownouts for outdated self-hosted GitHub Actions runners on August 24, 2026 for GitHub Enterprise Cloud.',
           'The brownouts increase through September, and full enforcement begins September 25, 2026.',
           'During the rollout, unsupported runners may be unable to register. Existing registered runners can also eventually stop accepting workflow jobs if they fall behind the supported runner version window.',
-          'That failure can look confusing from the application side. The repository did not change. The deployment workflow did not change. The runner quietly became an unsupported operational dependency.',
+          'That failure can look confusing from the application side. The repository did not change. The deployment workflow did not change. The runner became an unsupported operational dependency.',
         ],
         questionsLabel: 'Runner brownout risk questions',
         questions: [
@@ -63,9 +63,9 @@ export const resourceArticles = [
         type: 'prose',
         title: 'Why consultants should care',
         paragraphs: [
-          'Self-hosted runners are exactly the kind of infrastructure that disappears after it starts working.',
-          'Someone installs a GitHub self-hosted runner on a VPS, EC2 instance, Proxmox VM, Kubernetes node, Docker host, on-prem server or client-owned machine. The workflow goes green. The client stops thinking about it. Six months later, the runner is just part of the floor.',
-          'That is fine until the floor moves.',
+          'Self-hosted runners are easy to lose track of once deployments start passing.',
+          'Someone installs a GitHub self-hosted runner on a VPS, EC2 instance, Proxmox VM, Kubernetes node, Docker host, on-prem server or client-owned machine. The workflow goes green. The client stops thinking about it. Six months later, the runner may no longer have an active maintenance owner.',
+          'That becomes a problem when GitHub changes the supported runner window.',
           'If you manage client infrastructure, the runner is not just a CI/CD detail. It is part of the deployment path. It may hold access to build secrets, cloud credentials, SSH keys, container registries, production hosts and release automation.',
         ],
         diagram: {
@@ -74,14 +74,14 @@ export const resourceArticles = [
           items: ['GitHub workflow', 'Self-hosted runner', 'Build and test', 'Deploy target', 'Production'],
         },
         emphasis:
-          'The classic ticket is: "Nothing changed. Why did production stop deploying?" Sometimes the answer is: the thing that deploys production changed under you.',
+          'A common ticket is: "Nothing changed. Why did production stop deploying?" Sometimes the change is in the deployment infrastructure, not the application.',
       },
       {
         id: 'inventory-now',
         type: 'checklist',
         title: 'What to inventory now',
         paragraphs: [
-          'Start with a boring inventory. Boring is good here. Boring means the future outage has fewer places to hide.',
+          'Start with a runner inventory that records ownership, maintenance state and deployment dependencies.',
           'For each GitHub self-hosted runner, record enough information that someone else can find it, understand what depends on it and decide how it should be maintained.',
         ],
         listLabel: 'Self-hosted runner inventory checklist',
@@ -112,7 +112,7 @@ export const resourceArticles = [
           },
         ],
         closing:
-          'If the only person who knows where the runner lives is "future me," future me is about to open a very annoying support ticket.',
+          'If the runner location and owner are not written down, recovery depends on memory instead of process.',
       },
       {
         id: 'stale-provisioning',
@@ -120,7 +120,7 @@ export const resourceArticles = [
         title: 'Check the provisioning source, not only the live runner',
         paragraphs: [
           'Manually updating the live runner is useful, but it is not enough if the next rebuild installs the old version again.',
-          'Consultants often inherit systems where the production VM is newer than the template that creates it. That works until a recovery event, migration or rebuild quietly resurrects the unsupported runner.',
+          'Consultants often inherit systems where the production VM is newer than the template that creates it. That works until a recovery event, migration or rebuild reinstalls the unsupported runner.',
         ],
         listTitle: 'Look for stale runner installation logic in:',
         list: [
@@ -142,7 +142,7 @@ export const resourceArticles = [
         type: 'prose',
         title: 'How to check the installed runner version on Linux',
         paragraphs: [
-          'There is no magic GitHub CLI command you should rely on here. Start from the runner host and the runner installation directory.',
+          'Do not rely on a single GitHub CLI command here. Start from the runner host and the runner installation directory.',
           'The examples below assume a common install path such as /opt/actions-runner or ~/actions-runner. Adjust the path for your environment.',
         ],
         codeBlocks: [
@@ -185,8 +185,8 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         title: 'Verify update behavior',
         paragraphs: [
           'A runner that currently works is not necessarily a runner that is being maintained.',
-          'GitHub says runners with auto-update enabled satisfy the 30-day update requirement automatically as long as they can reach the update service. That last clause matters. Network rules, proxies, pinned containers and broken permissions can turn "auto-update" into a decorative checkbox.',
-          'If automatic runner updates are deliberately disabled, the organization needs a real upgrade process. "We will remember to do it manually" is not a process. It is a calendar event waiting to be missed.',
+          'GitHub says runners with auto-update enabled satisfy the 30-day update requirement automatically as long as they can reach the update service. That last clause matters. Network rules, proxies, pinned containers and broken permissions can make "auto-update" misleading.',
+          'If automatic runner updates are deliberately disabled, the organization needs a real upgrade process. "We will remember to do it manually" is not a reliable control.',
         ],
         listTitle: 'Confirm:',
         list: [
@@ -206,7 +206,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         title: 'Test a real deployment before the brownout window',
         paragraphs: [
           'Seeing the runner as online is not enough validation.',
-          'Run a controlled deployment before the brownout window. Use a workflow that looks like the real production path, not a toy workflow that echoes hello and calls it a day.',
+          'Run a controlled deployment before the brownout window. Use a workflow that looks like the real production path, not a minimal smoke test that only proves the runner can start.',
         ],
         examples: [
           {
@@ -231,7 +231,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         title: 'Document the fallback',
         paragraphs: [
           'If the self-hosted Actions runner becomes unavailable during a client deployment, what happens next?',
-          'That answer should exist before production is waiting. Inventing a deployment fallback while a release is blocked is a little too spicy for ordinary business operations.',
+          'That answer should exist before production is waiting. Defining the fallback while a release is blocked creates avoidable operational risk.',
         ],
         listTitle: 'Possible fallback strategies include:',
         list: [
@@ -289,8 +289,8 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
           },
         ],
         paragraphsAfter: [
-          'That is the useful Pathflow angle: not "look, another system diagram," but "this upstream deadline affects this client deployment path, and someone owns the update."',
-          'Deprecations should become actionable client alerts instead of archaeological surprises.',
+          'That is the useful Pathflow angle: this upstream deadline affects this client deployment path, and someone owns the update.',
+          'Deprecations should become actionable client alerts instead of late-stage discovery work.',
         ],
       },
       {
@@ -298,7 +298,7 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         type: 'checklist',
         title: 'Final checklist',
         paragraphs: [
-          'Before August 24, make the runner inventory boring enough that September does not become exciting.',
+          'Before August 24, make the runner inventory complete enough that September enforcement does not block a deployment.',
         ],
         listLabel: 'GitHub self-hosted runner brownout checklist',
         items: [
@@ -390,8 +390,8 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
         paragraphs: [
           'On August 17, 2026, GitHub experienced a major outage that lasted 7 hours and 47 minutes.',
           'GitHub.com, authentication, GitHub Actions, APIs, pull requests, issues and Copilot were disrupted. The incident began when traffic reached a new peak and a critical component in GitHub\'s Central US infrastructure failed to scale with it.',
-          'The interesting workflow-design lesson is not only the initial capacity failure. During recovery, errors in some Copilot services triggered retry behavior that increased traffic and complicated restoration.',
-          'That is the part automation consultants should stare at for a minute.',
+          'The workflow-design lesson is not only the initial capacity failure. During recovery, errors in some Copilot services triggered retry behavior that increased traffic and complicated restoration.',
+          'That recovery phase is the part automation consultants should focus on.',
         ],
         questionsLabel: 'Retry storm questions',
         questions: [
@@ -454,11 +454,11 @@ Workers stay occupied
     |
 More retries accumulate
     |
-Everything catches fire politely`,
+The failure becomes a retry storm`,
           },
         ],
         emphasis:
-          '"Retry on failure" is not a complete reliability strategy. Sometimes it is just a polite way to make a dependency busier.',
+          '"Retry on failure" is not a complete reliability strategy. Without limits, it can add load to the dependency that is already failing.',
       },
       {
         id: 'classify-errors',
@@ -524,7 +524,7 @@ Attempt 4`,
           },
         ],
         emphasis:
-          'The goal is not to keep hammering until something works. The goal is to give recovery a chance.',
+          'The goal is not to keep sending requests until something works. The goal is to give recovery a chance.',
       },
       {
         id: 'jitter',
@@ -532,7 +532,7 @@ Attempt 4`,
         title: 'Add jitter',
         paragraphs: [
           'Backoff alone can still synchronize traffic.',
-          'If 500 workflows all fail at 12:00:00 and all wait exactly 60 seconds, they may all retry together at 12:01:00. Congratulations: the outage now has a metronome.',
+          'If 500 workflows all fail at 12:00:00 and all wait exactly 60 seconds, they may all retry together at 12:01:00. The retry policy has created a second traffic spike.',
           'Jitter adds controlled randomness to the delay so retries spread across a window instead of forming another spike.',
         ],
         codeBlocks: [
@@ -577,7 +577,7 @@ Attempt 4`,
           'Escalate to an operator when the retry budget is exhausted.',
         ],
         emphasis:
-          'Infinite retries are not persistence. They are a denial-of-service attack with project-management branding.',
+          'Infinite retries are not resilience. They are an uncontrolled load source.',
       },
       {
         id: 'idempotency',
@@ -585,7 +585,7 @@ Attempt 4`,
         title: 'Make retried writes safe with idempotency',
         paragraphs: [
           'Retries introduce a second problem: the first request may actually have succeeded even if the workflow did not receive the response.',
-          'A workflow sends POST /create-invoice. The API creates the invoice, but the response times out. The workflow retries. Now the client has two invoices, and everyone gets to learn a new word in a tense Slack thread.',
+          'A workflow sends POST /create-invoice. The API creates the invoice, but the response times out. The workflow retries. Now the client has two invoices for one intended operation.',
           'Idempotency means repeated attempts can produce one intended result. Some APIs support idempotency keys directly. In other systems, you may need your own stable external ID, duplicate lookup or write-ahead record before making the call.',
         ],
         listTitle: 'Write operations that deserve special care:',
@@ -641,7 +641,7 @@ provider_record:
         title: 'Use queue and concurrency limits',
         paragraphs: [
           'Cascading failure often reaches automation platforms through execution slots.',
-          'Twenty workflows talk to one API. That API becomes slow. All 20 executions remain active. New workflows keep entering the system. Soon unrelated automations cannot run because every worker is waiting on the same sick dependency.',
+          'Twenty workflows talk to one API. That API becomes slow. All 20 executions remain active. New workflows keep entering the system. Soon unrelated automations cannot run because every worker is waiting on the same degraded dependency.',
           'This is where queue design and concurrency controls matter. The goal is to stop one failing dependency from consuming the whole automation environment.',
         ],
         listTitle: 'Controls to consider:',
@@ -676,7 +676,7 @@ provider_record:
           },
         ],
         paragraphsAfter: [
-          'Many small deployments do not need a formal circuit-breaker library. The architectural principle matters more than the branding.',
+          'Many small deployments do not need a formal circuit-breaker library. The architectural principle matters more than the terminology.',
           'In n8n, for example, a workflow can check a dependency-health record before processing another batch and route non-critical work into a wait or review path when the dependency is unhealthy.',
         ],
       },
@@ -687,7 +687,7 @@ provider_record:
         paragraphs: [
           'Consultants often build workflows as if every task must complete immediately.',
           'Many do not.',
-          'If a dependency is degraded, the safest response may be to queue the work and revisit it later. That is not failure. That is the workflow knowing the difference between urgent and merely scheduled.',
+          'If a dependency is degraded, the safest response may be to queue the work and revisit it later. That is not failure. That is the workflow distinguishing immediate work from work that can be delayed.',
         ],
         records: [
           {
@@ -711,14 +711,14 @@ provider_record:
           },
         ],
         emphasis:
-          'Ask the awkward but useful question: does this workflow actually need to retry right now?',
+          'Ask the operational question: does this workflow actually need to retry right now?',
       },
       {
         id: 'failure-policy',
         type: 'prose',
         title: 'A practical failure policy',
         paragraphs: [
-          'A good failure policy makes the workflow boring under stress.',
+          'A good failure policy makes the workflow predictable under stress.',
           'The exact implementation depends on the platform, but the shape should be explicit: classify the failure, retry only where useful, back off with jitter, stop at a ceiling and preserve failed work for review.',
         ],
         codeBlocks: [
@@ -769,7 +769,7 @@ Classify failure
           'Avoid uncontrolled loops that keep calling the same failing API.',
         ],
         emphasis:
-          'The workflow canvas should show how the system behaves when the happy path is unavailable.',
+          'The workflow canvas should show how the system behaves when the normal path is unavailable.',
       },
       {
         id: 'pathflow-connection',
