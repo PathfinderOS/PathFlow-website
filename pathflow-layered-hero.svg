@@ -1,0 +1,1347 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-labelledby="title desc">
+  <title id="title">Pathflow layered hero object</title>
+  <desc id="desc">An animated stack of systems, flow, and context layers that separates, reveals semantic structure, illuminates an operational path, and settles back together.</desc>
+  <defs>
+    <linearGradient id="systems-top" x1="288" y1="332" x2="672" y2="548" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#242827"/>
+      <stop offset="0.54" stop-color="#171b1a"/>
+      <stop offset="1" stop-color="#111413"/>
+    </linearGradient>
+    <linearGradient id="flow-top" x1="328" y1="265" x2="632" y2="435" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#272b29"/>
+      <stop offset="0.56" stop-color="#191d1c"/>
+      <stop offset="1" stop-color="#101312"/>
+    </linearGradient>
+    <linearGradient id="context-top" x1="364" y1="233" x2="596" y2="363" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2a2f2d"/>
+      <stop offset="0.56" stop-color="#1b201e"/>
+      <stop offset="1" stop-color="#121514"/>
+    </linearGradient>
+    <linearGradient id="cap-top" x1="419" y1="226" x2="541" y2="283" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#333733"/>
+      <stop offset="0.54" stop-color="#20241f"/>
+      <stop offset="1" stop-color="#141713"/>
+    </linearGradient>
+
+    <linearGradient id="plate-side" x1="288" y1="440" x2="672" y2="581" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#121514"/>
+      <stop offset="0.5" stop-color="#0c0f0e"/>
+      <stop offset="1" stop-color="#171a18"/>
+    </linearGradient>
+    <linearGradient id="gold-stroke" x1="390" y1="315" x2="600" y2="352" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a8732b"/>
+      <stop offset="0.5" stop-color="#f1c776"/>
+      <stop offset="1" stop-color="#b57d32"/>
+    </linearGradient>
+
+    <filter id="plate-shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.42"/>
+    </filter>
+    <filter id="active-glow" x="-40%" y="-80%" width="180%" height="260%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.78  0 1 0 0 0.54  0 0 1 0 0.18  0 0 0 0.75 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="soft-core" x="-160%" y="-160%" width="420%" height="420%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+
+    <clipPath id="systems-clip">
+      <path d="M288 440 L480 332 L672 440 L480 548 Z"/>
+    </clipPath>
+    <clipPath id="flow-clip">
+      <path d="M328 350 L480 265 L632 350 L480 435 Z"/>
+    </clipPath>
+    <clipPath id="context-clip">
+      <path d="M364 298 L480 233 L596 298 L480 363 Z"/>
+    </clipPath>
+
+    <style>
+      svg {
+        --bg: #070808;
+        --plate: #181c1b;
+        --line: #aab4ae;
+        --line-dim: #5f6964;
+        --text: #f5f7f3;
+        --muted: #9aa39d;
+        --gold: #d6a852;
+        --gold-soft: #f1c776;
+        background: transparent;
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      #systems-layer,
+      #flow-layer,
+      #context-layer,
+      #top-cap {
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+
+      #systems-layer {
+        animation: systems-rise 44s cubic-bezier(0.22, 0.7, 0.18, 1) infinite;
+      }
+
+      #flow-layer {
+        animation: flow-layer-rise 44s cubic-bezier(0.22, 0.7, 0.18, 1) infinite;
+      }
+
+      #context-layer {
+        animation: context-layer-rise 44s cubic-bezier(0.22, 0.7, 0.18, 1) infinite;
+      }
+
+      #top-cap {
+        animation: cap-layer-rise 44s cubic-bezier(0.22, 0.7, 0.18, 1) infinite;
+      }
+
+      .detail-reveal {
+        opacity: 0;
+        animation: detail-reveal 44s ease-in-out infinite;
+      }
+
+      .systems-reveal {
+        opacity: 0;
+        animation: systems-detail-reveal 44s ease-in-out infinite;
+      }
+
+      .system-item {
+        opacity: 0;
+      }
+
+      .system-item-1 {
+        animation: system-item-1-reveal 44s ease-in-out infinite;
+      }
+
+      .system-item-2 {
+        animation: system-item-2-reveal 44s ease-in-out infinite;
+      }
+
+      .system-item-3 {
+        animation: system-item-3-reveal 44s ease-in-out infinite;
+      }
+
+      .system-item-4 {
+        animation: system-item-4-reveal 44s ease-in-out infinite;
+      }
+
+      .flow-reveal {
+        opacity: 0;
+        animation: flow-detail-reveal 44s ease-in-out infinite;
+      }
+
+      .context-reveal {
+        opacity: 0;
+        animation: context-detail-reveal 44s ease-in-out infinite;
+      }
+
+      .label-reveal {
+        opacity: 0;
+        animation: label-reveal 44s ease-in-out infinite;
+      }
+
+      .systems-label {
+        opacity: 0;
+        animation: systems-label-reveal 44s ease-in-out infinite;
+      }
+
+      .flow-label {
+        opacity: 0;
+        animation: flow-label-reveal 44s ease-in-out infinite;
+      }
+
+      .context-label {
+        opacity: 0;
+        animation: context-label-reveal 44s ease-in-out infinite;
+      }
+
+      .handoff-label {
+        opacity: 0;
+        animation: handoff-label-reveal 44s ease-in-out infinite;
+      }
+
+      .plate-top {
+        stroke: rgba(218, 226, 220, 0.46);
+        stroke-width: 1.2;
+        fill-opacity: 0.78;
+      }
+
+      .plate-side {
+        stroke: rgba(218, 226, 220, 0.18);
+        stroke-width: 1;
+        fill-opacity: 0.68;
+      }
+
+      .edge-highlight {
+        fill: none;
+        stroke: rgba(241, 199, 118, 0.42);
+        stroke-width: 1.3;
+        stroke-linecap: round;
+      }
+
+      .internal-line {
+        fill: none;
+        stroke: rgba(170, 180, 174, 0.32);
+        stroke-width: 1.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .internal-line-soft {
+        fill: none;
+        stroke: rgba(170, 180, 174, 0.18);
+        stroke-width: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .system-bay {
+        fill: rgba(9, 12, 11, 0.36);
+        stroke: rgba(210, 220, 214, 0.26);
+        stroke-width: 1;
+        stroke-linejoin: round;
+      }
+
+      .system-bay-quiet {
+        fill: rgba(19, 24, 22, 0.2);
+        stroke: rgba(166, 177, 170, 0.16);
+        stroke-width: 1;
+        stroke-linejoin: round;
+      }
+
+      .system-rib,
+      .system-mark {
+        fill: none;
+        stroke: rgba(219, 227, 222, 0.58);
+        stroke-width: 0.95;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .system-rib-soft {
+        fill: none;
+        stroke: rgba(219, 227, 222, 0.18);
+        stroke-width: 0.85;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .gold-spread-quiet {
+        fill: none;
+        stroke: rgba(214, 168, 82, 0.42);
+        stroke-width: 1.15;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .systems-square-base {
+        fill: none;
+        stroke: rgba(218, 226, 220, 0.14);
+        stroke-width: 1.05;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .systems-drawn-route,
+      .handoff-drawn-route {
+        fill: none;
+        stroke: url(#gold-stroke);
+        stroke-width: 2.35;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 100;
+        filter: url(#active-glow);
+      }
+
+      .systems-drawn-route {
+        stroke-dasharray: 100;
+      }
+
+      .flow-context-handoff-base {
+        fill: none;
+        stroke: rgba(214, 168, 82, 0.22);
+        stroke-width: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0;
+        animation: flow-context-base-visibility 44s ease-in-out infinite;
+      }
+
+      .flow-context-drawn-route {
+        fill: none;
+        stroke: url(#gold-stroke);
+        stroke-width: 2.35;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 100;
+        filter: url(#active-glow);
+      }
+
+      .flow-context-chaser {
+        filter: url(#active-glow);
+      }
+
+      .flow-context-dot {
+        fill: #f1c776;
+        opacity: 1;
+      }
+
+      .context-fanout-route,
+      .context-ascent-route {
+        fill: none;
+        stroke: #d6a852;
+        stroke-width: 2.55;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 100;
+        filter: none;
+      }
+
+      .context-vertical-draw-line {
+        fill: none;
+        stroke: #d6a852;
+        stroke-width: 2.55;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: none;
+      }
+
+      .context-vertical-draw-line-aura {
+        display: none;
+      }
+
+      .context-vertical-fanout-overlay {
+        stroke-dasharray: 100;
+      }
+
+      .context-vertical-ascent-overlay {
+        stroke-dasharray: 100;
+      }
+
+      .context-ascent-route {
+        display: none;
+      }
+
+      .context-ascent-original {
+        display: none;
+      }
+
+      .context-ascent-side-overlay {
+        stroke-dasharray: 100;
+      }
+
+      .context-center-hold-dot {
+        opacity: 0;
+        filter: url(#active-glow);
+      }
+
+      .context-fanout-chaser,
+      .context-ascent-chaser {
+        filter: url(#active-glow);
+      }
+
+      .context-center-hold-dot {
+        fill: #f1c776;
+        animation: context-center-hold-visibility 44s ease-in-out infinite;
+      }
+
+      .context-travel-dot {
+        fill: #f1c776;
+        opacity: 1;
+      }
+
+      .top-convergence-glow,
+      .top-convergence-core {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        pointer-events: none;
+      }
+
+      .top-convergence-glow {
+        fill: #f1c776;
+        filter: url(#soft-core);
+        animation: top-convergence-glow 44s ease-in-out infinite;
+      }
+
+      .top-convergence-core {
+        fill: #f1c776;
+        filter: url(#active-glow);
+        animation: top-convergence-core 44s ease-in-out infinite;
+      }
+
+      .systems-square-chaser {
+        filter: url(#active-glow);
+      }
+
+      .systems-square-dot {
+        fill: #f1c776;
+        opacity: 1;
+      }
+
+      .handoff-path-base {
+        fill: none;
+        stroke: rgba(214, 168, 82, 0.24);
+        stroke-width: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0;
+        animation: handoff-base-visibility 44s ease-in-out infinite;
+      }
+
+      .handoff-chaser {
+        filter: url(#active-glow);
+      }
+
+      .handoff-dot {
+        fill: #f1c776;
+        opacity: 1;
+      }
+
+      .gold-node {
+        fill: rgba(241, 199, 118, 0.9);
+        opacity: 0;
+        animation: signal-node-glow 44s ease-in-out infinite;
+        filter: url(#active-glow);
+      }
+
+      .visited-dot {
+        fill: rgba(241, 199, 118, 0.72);
+        opacity: 0;
+        filter: url(#active-glow);
+        pointer-events: none;
+      }
+
+      .visit-system-1 { animation: visit-system-1 44s ease-in-out infinite; }
+      .visit-system-2 { animation: visit-system-2 44s ease-in-out infinite; }
+      .visit-system-3 { animation: visit-system-3 44s ease-in-out infinite; }
+      .visit-system-4 { animation: visit-system-4 44s ease-in-out infinite; }
+      .visit-flow-1 { animation: visit-flow-1 44s ease-in-out infinite; }
+      .visit-flow-2 { animation: visit-flow-2 44s ease-in-out infinite; }
+      .visit-flow-3 { animation: visit-flow-3 44s ease-in-out infinite; }
+      .visit-flow-4 { animation: visit-flow-4 44s ease-in-out infinite; }
+      .visit-flow-5 { animation: visit-flow-5 44s ease-in-out infinite; }
+      .visit-context-center { animation: visit-context-center 44s ease-in-out infinite; }
+      .visit-context-own { animation: visit-context-own 44s ease-in-out infinite; }
+      .visit-context-requests { animation: visit-context-requests 44s ease-in-out infinite; }
+      .visit-context-resources { animation: visit-context-resources 44s ease-in-out infinite; }
+
+      .systems-signal {
+        animation-delay: 0s;
+      }
+
+      .flow-signal {
+        animation-delay: 0s;
+      }
+
+      .context-signal {
+        animation-delay: 0.48s;
+      }
+
+      .relay-node {
+        fill: rgba(12, 15, 14, 0.82);
+        stroke: rgba(218, 226, 220, 0.44);
+        stroke-width: 1;
+      }
+
+      .relay-node-core {
+        fill: rgba(196, 207, 200, 0.62);
+      }
+
+      .semantic-chip {
+        fill: rgba(11, 14, 13, 0.5);
+        stroke: rgba(214, 224, 218, 0.3);
+        stroke-width: 1;
+        stroke-linejoin: round;
+      }
+
+      .semantic-mark {
+        fill: none;
+        stroke: rgba(223, 231, 226, 0.58);
+        stroke-width: 1.05;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .module-shape {
+        fill: rgba(13, 16, 15, 0.64);
+        stroke: rgba(200, 210, 204, 0.32);
+        stroke-width: 1;
+      }
+
+      .module-icon {
+        fill: none;
+        stroke: rgba(220, 227, 222, 0.76);
+        stroke-width: 1.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .module-dot {
+        fill: rgba(214, 168, 82, 0.92);
+        filter: url(#active-glow);
+      }
+
+      .micro-text {
+        fill: rgba(234, 238, 234, 0.72);
+        font-size: 10px;
+        font-weight: 520;
+        letter-spacing: 0;
+        text-anchor: middle;
+      }
+
+      .node-label {
+        fill: rgba(226, 232, 228, 0.75);
+        font-size: 9px;
+        font-weight: 540;
+        letter-spacing: 0;
+        text-anchor: middle;
+      }
+
+      .label-heading {
+        fill: #f5f7f3;
+        font-size: 14px;
+        font-weight: 650;
+        letter-spacing: 0;
+      }
+
+      .label-rule {
+        fill: none;
+        stroke: rgba(214, 168, 82, 0.46);
+        stroke-width: 1;
+        stroke-linecap: round;
+      }
+
+      .compact-layer-label .label-heading {
+        font-size: 13px;
+        font-weight: 680;
+        fill: rgba(245, 247, 243, 0.9);
+        dominant-baseline: middle;
+      }
+
+      .background-line {
+        fill: none;
+        stroke: rgba(164, 175, 168, 0.07);
+        stroke-width: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .waypoint {
+        fill: rgba(190, 199, 194, 0.22);
+      }
+
+      #active-route-trace {
+        stroke-dasharray: 100;
+      }
+
+      #flow-pulse-dot {
+        filter: url(#active-glow);
+      }
+
+      .active-anchor {
+        animation: anchor-glow 44s ease-in-out infinite;
+      }
+
+      @keyframes systems-rise {
+        0%, 100% { transform: translateY(0); }
+      }
+
+      @keyframes flow-layer-rise {
+        0%, 8% { transform: translateY(56px); }
+        20%, 98.8% { transform: translateY(-18px); }
+        100% { transform: translateY(56px); }
+      }
+
+      @keyframes context-layer-rise {
+        0%, 8% { transform: translateY(64px); }
+        20%, 48% { transform: translateY(-18px); }
+        64%, 98.2% { transform: translateY(-54px); }
+        98.8% { transform: translateY(-18px); }
+        100% { transform: translateY(64px); }
+      }
+
+      @keyframes cap-layer-rise {
+        0%, 8% { transform: translateY(96px); }
+        20%, 48% { transform: translateY(-18px); }
+        64%, 72% { transform: translateY(-54px); }
+        84%, 97.6% { transform: translateY(-104px); }
+        98.2% { transform: translateY(-54px); }
+        98.8% { transform: translateY(-18px); }
+        100% { transform: translateY(96px); }
+      }
+
+      @keyframes detail-reveal {
+        0%, 64% { opacity: 0; }
+        72%, 84% { opacity: 1; }
+        94%, 100% { opacity: 0; }
+      }
+
+      @keyframes systems-detail-reveal {
+        0%, 4% { opacity: 0; }
+        8% { opacity: 0.25; }
+        12%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes system-item-1-reveal {
+        0%, 8% { opacity: 0; }
+        12%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes system-item-2-reveal {
+        0%, 11% { opacity: 0; }
+        15%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes system-item-3-reveal {
+        0%, 14% { opacity: 0; }
+        18%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes system-item-4-reveal {
+        0%, 5% { opacity: 0; }
+        9%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes flow-detail-reveal {
+        0%, 44% { opacity: 0; }
+        49% { opacity: 0.25; }
+        54%, 82% { opacity: 1; }
+        91% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes context-detail-reveal {
+        0%, 68% { opacity: 0; }
+        72% { opacity: 0.25; }
+        76%, 98.2% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes label-reveal {
+        0%, 66% { opacity: 0; }
+        74%, 86% { opacity: 1; }
+        94%, 100% { opacity: 0; }
+      }
+
+      @keyframes systems-label-reveal {
+        0%, 14% { opacity: 0; }
+        20% { opacity: 0.35; }
+        26%, 88% { opacity: 1; }
+        94% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes flow-label-reveal {
+        0%, 48% { opacity: 0; }
+        54% { opacity: 0.35; }
+        58%, 82% { opacity: 1; }
+        91% { opacity: 0.35; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes context-label-reveal {
+        0%, 68% { opacity: 0; }
+        72% { opacity: 0.35; }
+        76%, 98.2% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes handoff-label-reveal {
+        0%, 84% { opacity: 0; }
+        88% { opacity: 0.35; }
+        91%, 98.2% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes route-draw {
+        0%, 48% { opacity: 0; stroke-dashoffset: 100; }
+        56% { opacity: 0.92; stroke-dashoffset: 47; }
+        64% { opacity: 0.92; stroke-dashoffset: 0; }
+        70% { opacity: 0.42; stroke-dashoffset: 0; }
+        82%, 100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes systems-square-dot-visibility {
+        0%, 8.8% { opacity: 0; }
+        9.2%, 40% { opacity: 1; }
+        44%, 100% { opacity: 0; }
+      }
+
+      @keyframes systems-route-draw {
+        0%, 8.8% { opacity: 0; stroke-dashoffset: 100; }
+        9.2% { opacity: 0.9; stroke-dashoffset: 100; }
+        16.9% { opacity: 0.9; stroke-dashoffset: 75; }
+        24.6% { opacity: 0.9; stroke-dashoffset: 50; }
+        32.3% { opacity: 0.9; stroke-dashoffset: 25; }
+        40% { opacity: 0.9; stroke-dashoffset: 0; }
+        44% { opacity: 0.34; stroke-dashoffset: 0; }
+        100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes handoff-base-visibility {
+        0%, 44% { opacity: 0; }
+        45%, 48% { opacity: 0.34; }
+        52%, 100% { opacity: 0; }
+      }
+
+      @keyframes handoff-route-draw {
+        0%, 44% { opacity: 0; stroke-dashoffset: 100; }
+        44.2% { opacity: 0.92; stroke-dashoffset: 96; }
+        46% { opacity: 0.92; stroke-dashoffset: 47; }
+        48% { opacity: 0.92; stroke-dashoffset: 0; }
+        52%, 100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes handoff-dot-visibility {
+        0%, 43.8% { opacity: 0; }
+        44%, 48% { opacity: 1; }
+        52%, 100% { opacity: 0; }
+      }
+
+      @keyframes flow-pulse-visibility {
+        0%, 48% { opacity: 0; }
+        52%, 64% { opacity: 1; }
+        70%, 100% { opacity: 0; }
+      }
+
+      @keyframes flow-context-base-visibility {
+        0%, 66% { opacity: 0; }
+        68%, 72% { opacity: 0.32; }
+        75%, 100% { opacity: 0; }
+      }
+
+      @keyframes flow-context-route-draw {
+        0%, 66% { opacity: 0; stroke-dashoffset: 100; }
+        66.2% { opacity: 0.92; stroke-dashoffset: 96; }
+        69% { opacity: 0.92; stroke-dashoffset: 47; }
+        72% { opacity: 0.92; stroke-dashoffset: 0; }
+        75%, 100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes flow-context-dot-visibility {
+        0%, 65.8% { opacity: 0; }
+        68%, 72% { opacity: 1; }
+        75%, 100% { opacity: 0; }
+      }
+
+      @keyframes context-center-hold-visibility {
+        0%, 71.8% { opacity: 0; }
+        72.2%, 88% { opacity: 1; }
+        88.4%, 100% { opacity: 0; }
+      }
+
+      @keyframes context-fanout-route-draw {
+        0%, 78% { opacity: 0; stroke-dashoffset: 100; }
+        78.2% { opacity: 0.94; stroke-dashoffset: 96; }
+        81% { opacity: 0.94; stroke-dashoffset: 47; }
+        84%, 88.2% { opacity: 0.94; stroke-dashoffset: 0; }
+        90%, 100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes context-fanout-dot-visibility {
+        0%, 77.8% { opacity: 0; }
+        78.2%, 88.7% { opacity: 1; }
+        89.2%, 100% { opacity: 0; }
+      }
+
+      @keyframes context-ascent-route-draw {
+        0%, 88% { opacity: 0; stroke-dashoffset: 100; }
+        88.2% { opacity: 0.9; stroke-dashoffset: 96; }
+        91% { opacity: 0.9; stroke-dashoffset: 47; }
+        94%, 96.2% { opacity: 0.9; stroke-dashoffset: 0; }
+        97.2%, 100% { opacity: 0; stroke-dashoffset: 0; }
+      }
+
+      @keyframes context-ascent-dot-visibility {
+        0%, 87.6% { opacity: 0; }
+        88%, 96.2% { opacity: 1; }
+        97.2%, 100% { opacity: 0; }
+      }
+
+      @keyframes visit-system-1 {
+        0%, 16.4% { opacity: 0; }
+        17%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-system-2 {
+        0%, 24% { opacity: 0; }
+        24.8%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-system-3 {
+        0%, 31.8% { opacity: 0; }
+        32.6%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-system-4 {
+        0%, 8.8% { opacity: 0; }
+        9.4%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-flow-1 {
+        0%, 48.2% { opacity: 0; }
+        48.21%, 98.4% { opacity: 0.48; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-flow-2 {
+        0%, 51.9% { opacity: 0; }
+        51.91%, 98.4% { opacity: 0.48; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-flow-3 {
+        0%, 55.9% { opacity: 0; }
+        55.91%, 98.4% { opacity: 0.48; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-flow-4 {
+        0%, 59.9% { opacity: 0; }
+        59.91%, 98.4% { opacity: 0.48; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-flow-5 {
+        0%, 63.9% { opacity: 0; }
+        63.91%, 98.4% { opacity: 0.48; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-context-center {
+        0%, 71.8% { opacity: 0; }
+        72.4%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-context-own {
+        0%, 83.5% { opacity: 0; }
+        84.2%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-context-requests {
+        0%, 83.5% { opacity: 0; }
+        84.2%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes visit-context-resources {
+        0%, 83.5% { opacity: 0; }
+        84.2%, 98.4% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes top-convergence-glow {
+        0%, 93.8% { opacity: 0; transform: scale(0.72); }
+        94.6% { opacity: 0.3; transform: scale(0.9); }
+        96.2% { opacity: 0.9; transform: scale(1.22); }
+        97.2% { opacity: 0; transform: scale(1.3); }
+        100% { opacity: 0; }
+      }
+
+      @keyframes top-convergence-core {
+        0%, 93.8% { opacity: 0; transform: scale(0.82); }
+        94.3% { opacity: 0.76; transform: scale(1); }
+        96.2% { opacity: 1; transform: scale(1.12); }
+        97.2% { opacity: 0; transform: scale(1.12); }
+        100% { opacity: 0; }
+      }
+
+      @keyframes signal-node-glow {
+        0%, 34%, 94%, 100% { opacity: 0; }
+        42%, 86% { opacity: 0.92; }
+        91% { opacity: 0.38; }
+      }
+
+      @keyframes anchor-glow {
+        0%, 68%, 94%, 100% { opacity: 0.28; }
+        74%, 86% { opacity: 1; }
+        91% { opacity: 0.55; }
+      }
+
+      @media (max-width: 640px) {
+        #side-labels,
+        .background-wide,
+        .micro-text,
+        .node-label {
+          display: none;
+        }
+
+        .internal-line-soft {
+          opacity: 0.5;
+        }
+
+        .plate-top {
+          stroke-width: 1.4;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #systems-layer,
+        #flow-layer,
+        #context-layer,
+        #top-cap,
+        .detail-reveal,
+        .systems-reveal,
+        .system-item,
+        .flow-reveal,
+        .context-reveal,
+        .label-reveal,
+        .systems-label,
+        .flow-label,
+        .context-label,
+        .handoff-label,
+        .active-anchor,
+        .systems-drawn-route,
+        .systems-square-chaser,
+        .systems-square-dot,
+        .handoff-path-base,
+        .handoff-drawn-route,
+        .handoff-chaser,
+        .handoff-dot,
+        .flow-context-handoff-base,
+        .flow-context-drawn-route,
+        .flow-context-chaser,
+        .flow-context-dot,
+        .context-fanout-route,
+        .context-ascent-route,
+        .context-vertical-fanout-overlay,
+        .context-vertical-ascent-overlay,
+        .context-center-hold-dot,
+        .context-fanout-chaser,
+        .context-ascent-chaser,
+        .context-travel-dot,
+        .top-convergence-glow,
+        .top-convergence-core,
+        .visited-dot,
+        .gold-node,
+        #active-route-trace,
+        #flow-pulse-dot {
+          animation: none;
+        }
+
+        #systems-layer,
+        #flow-layer,
+        #context-layer,
+        #top-cap {
+          transform: translateY(0);
+        }
+
+        .detail-reveal,
+        .systems-reveal,
+        .system-item,
+        .flow-reveal,
+        .context-reveal,
+        .label-reveal,
+        .systems-label,
+        .flow-label,
+        .context-label,
+        .handoff-label {
+          opacity: 1;
+        }
+
+        #active-route-trace {
+          opacity: 0.92;
+          stroke-dasharray: 100;
+          stroke-dashoffset: 0;
+        }
+
+        .systems-drawn-route {
+          opacity: 0.82;
+          stroke-dasharray: 100;
+          stroke-dashoffset: 0;
+        }
+
+        .handoff-path-base,
+        .handoff-drawn-route,
+        .handoff-chaser,
+        .handoff-dot {
+          opacity: 0;
+        }
+
+        .flow-context-handoff-base,
+        .flow-context-drawn-route,
+        .flow-context-chaser,
+        .flow-context-dot,
+        .context-fanout-route,
+        .context-ascent-route,
+        .context-vertical-fanout-overlay,
+        .context-vertical-ascent-overlay,
+        .context-center-hold-dot,
+        .context-fanout-chaser,
+        .context-ascent-chaser,
+        .context-travel-dot,
+        .top-convergence-glow,
+        .top-convergence-core {
+          opacity: 0;
+        }
+
+        #flow-pulse-dot {
+          opacity: 0;
+        }
+
+        .systems-square-chaser,
+        .systems-square-dot {
+          opacity: 0;
+        }
+
+        #resolved-route-dot {
+          opacity: 1;
+        }
+
+        .active-anchor {
+          opacity: 1;
+        }
+
+        .visited-dot {
+          opacity: 0.52;
+        }
+
+        .gold-node {
+          opacity: 0.9;
+        }
+
+      }
+    </style>
+  </defs>
+
+  <g id="systems-layer" filter="url(#plate-shadow)">
+    <g id="systems-plate">
+      <path class="plate-side" d="M288 440 L480 548 L672 440 L672 470 L480 581 L288 470 Z" fill="url(#plate-side)"/>
+      <path class="plate-top" d="M288 440 L480 332 L672 440 L480 548 Z" fill="url(#systems-top)"/>
+      <path class="edge-highlight" d="M293 440 L480 336 L667 440"/>
+    </g>
+
+    <g id="systems-content" class="systems-reveal" clip-path="url(#systems-clip)">
+      <g id="systems-module-bays">
+        <g id="system-website" class="system-item system-item-1">
+          <path class="system-bay" d="M362 440 L390 424 L418 440 L390 456 Z"/>
+          <path class="system-bay-quiet" d="M375 440 L390 431 L406 440 L391 449 Z"/>
+          <path class="system-mark" d="M377 438 L390 431 L406 440 L393 447 Z"/>
+          <path class="system-rib-soft" d="M379 441 H404"/>
+          <path class="system-rib-soft" d="M382 445 H398"/>
+        </g>
+
+        <g id="system-crm" class="system-item system-item-2">
+          <path class="system-bay" d="M452 386 L480 370 L508 386 L480 402 Z"/>
+          <path class="system-bay-quiet" d="M465 386 L480 377 L496 386 L481 395 Z"/>
+          <path class="system-mark" d="M469 381 C469 378 491 378 491 381 C491 384 469 384 469 381 Z"/>
+          <path class="system-mark" d="M469 381 V391 C469 395 491 395 491 391 V381"/>
+          <path class="system-rib-soft" d="M469 386 C469 389 491 389 491 386"/>
+        </g>
+
+        <g id="system-documents" class="system-item system-item-3">
+          <path class="system-bay" d="M542 440 L570 424 L598 440 L570 456 Z"/>
+          <path class="system-bay-quiet" d="M555 440 L570 431 L586 440 L571 449 Z"/>
+          <path class="system-rib-soft" d="M556 433 L570 425 L584 433"/>
+          <path class="system-mark" d="M558 439 L571 431 L585 439 L572 447 Z"/>
+          <path class="system-mark" d="M562 443 L572 437 L582 443"/>
+        </g>
+
+        <g id="system-team" class="system-item system-item-4">
+          <path class="system-bay" d="M452 494 L480 478 L508 494 L480 510 Z"/>
+          <path class="system-bay-quiet" d="M465 494 L480 485 L496 494 L481 503 Z"/>
+          <circle class="relay-node-core" cx="474" cy="494" r="1.7"/>
+          <circle class="relay-node-core" cx="480" cy="490" r="1.7"/>
+          <circle class="relay-node-core" cx="486" cy="494" r="1.7"/>
+          <path class="system-mark" d="M468 502 C474 498 486 498 492 502"/>
+          <path class="system-rib-soft" d="M464 499 C468 497 472 497 476 499 M484 499 C488 497 492 497 496 499"/>
+        </g>
+      </g>
+
+      <g id="systems-gold-spread">
+        <path class="systems-square-base" d="M390 440 L480 386 L570 440 L480 494 Z"/>
+        <path class="systems-drawn-route" pathLength="100" d="M480 494 L390 440 L480 386 L570 440 L480 494">
+          <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.092;0.40;1" values="100;100;0;0"/>
+          <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.088;0.092;0.40;0.44;1" values="0;0;0.9;0.9;0.34;0"/>
+        </path>
+        <circle class="visited-dot visit-system-1" cx="390" cy="440" r="1.6"/>
+        <circle class="visited-dot visit-system-2" cx="480" cy="386" r="1.6"/>
+        <circle class="visited-dot visit-system-3" cx="570" cy="440" r="1.6"/>
+        <circle class="visited-dot visit-system-4" cx="480" cy="494" r="1.6"/>
+        <g class="systems-square-chaser" opacity="0">
+          <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.088;0.092;0.398;0.40;1" values="0;0;1;1;0;0"/>
+          <circle class="systems-square-dot" r="4"/>
+          <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.092;0.40;1" keyPoints="0;0;1;1" path="M480 494 L390 440 L480 386 L570 440 L480 494"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <g id="flow-layer" filter="url(#plate-shadow)">
+    <g id="flow-plate">
+      <path class="plate-side" d="M328 350 L480 435 L632 350 L632 374 L480 460 L328 374 Z" fill="url(#plate-side)"/>
+      <path class="plate-top" d="M328 350 L480 265 L632 350 L480 435 Z" fill="url(#flow-top)"/>
+      <path class="edge-highlight" d="M333 350 L480 269 L627 350"/>
+    </g>
+
+    <g id="flow-content-passive" class="flow-reveal" clip-path="url(#flow-clip)">
+      <g id="flow-relays">
+        <g transform="translate(390 350)">
+          <path class="relay-node" d="M-10 0 L0 -6 L10 0 L0 6 Z"/>
+          <circle class="relay-node-core" r="2.2"/>
+        </g>
+        <g transform="translate(438 328)">
+          <path class="relay-node" d="M-10 0 L0 -6 L10 0 L0 6 Z"/>
+          <circle class="relay-node-core" r="2.2"/>
+        </g>
+        <g transform="translate(492 358)">
+          <path class="relay-node" d="M-11 0 L0 -7 L11 0 L0 7 Z"/>
+          <circle class="relay-node-core" r="2.4"/>
+        </g>
+        <g transform="translate(542 330)">
+          <path class="relay-node" d="M-10 0 L0 -6 L10 0 L0 6 Z"/>
+          <circle class="relay-node-core" r="2.2"/>
+        </g>
+        <g transform="translate(586 350)">
+          <path class="relay-node" d="M-11 0 L0 -7 L11 0 L0 7 Z"/>
+          <circle class="relay-node-core" r="2.4"/>
+        </g>
+      </g>
+
+    </g>
+
+    <g id="flow-visited-dots" clip-path="url(#flow-clip)">
+      <circle class="visited-dot visit-flow-1" cx="390" cy="350" r="1.6"/>
+      <circle class="visited-dot visit-flow-2" cx="438" cy="328" r="1.6"/>
+      <circle class="visited-dot visit-flow-3" cx="492" cy="358" r="1.6"/>
+      <circle class="visited-dot visit-flow-4" cx="542" cy="330" r="1.6"/>
+      <circle class="visited-dot visit-flow-5" cx="586" cy="350" r="1.6"/>
+    </g>
+
+    <g id="flow-content-active" clip-path="url(#flow-clip)">
+      <path id="active-route-trace" class="flow-signal" pathLength="100" d="M390 350 C409 337 422 330 438 328 C464 325 470 358 492 358 C516 358 521 331 542 330 C562 329 571 341 586 350" fill="none" stroke="url(#gold-stroke)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#active-glow)">
+        <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.48;0.64;1" values="100;100;0;0"/>
+        <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.478;0.48;0.64;0.70;0.82;1" values="0;0;0.92;0.92;0.42;0;0"/>
+      </path>
+      <g id="flow-pulse-dot" filter="url(#active-glow)" opacity="0">
+        <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.478;0.48;0.64;0.70;1" values="0;0;1;1;0;0"/>
+        <circle r="5.5" fill="#f1c776"/>
+        <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.48;0.64;1" keyPoints="0;0;1;1" path="M390 350 C409 337 422 330 438 328 C464 325 470 358 492 358 C516 358 521 331 542 330 C562 329 571 341 586 350"/>
+      </g>
+      <circle id="resolved-route-dot" cx="586" cy="350" r="4.5" fill="#f1c776" filter="url(#active-glow)" opacity="0">
+        <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.64;0.645;0.70;0.82;1" values="0;0;0.82;0.82;0;0"/>
+      </circle>
+    </g>
+  </g>
+
+  <g id="systems-flow-handoff">
+    <path class="handoff-path-base" d="M480 494 C466 432 430 364 390 332"/>
+    <path class="handoff-drawn-route" pathLength="100" d="M480 494 C466 432 430 364 390 332">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.44;0.48;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.438;0.44;0.48;0.52;1" values="0;0;0.92;0.92;0;0"/>
+    </path>
+    <g class="handoff-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.438;0.44;0.48;0.52;1" values="0;0;1;1;0;0"/>
+      <circle class="handoff-dot" r="4.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.44;0.48;1" keyPoints="0;0;1;1" path="M480 494 C466 432 430 364 390 332"/>
+    </g>
+  </g>
+
+  <g id="flow-context-handoff">
+    <path class="flow-context-handoff-base" d="M586 332 C545 306 510 274 480 263"/>
+    <path class="flow-context-drawn-route" pathLength="100" d="M586 332 C545 306 510 274 480 263">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.66;0.72;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.658;0.66;0.72;0.75;1" values="0;0;0.92;0.92;0;0"/>
+    </path>
+    <g class="flow-context-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.658;0.66;0.72;0.75;1" values="0;0;1;1;0;0"/>
+      <circle class="flow-context-dot" r="4.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.66;0.72;1" keyPoints="0;0;1;1" path="M586 332 C545 306 510 274 480 263"/>
+    </g>
+  </g>
+
+  <g id="context-layer" filter="url(#plate-shadow)">
+    <g id="context-plate">
+      <path class="plate-side" d="M364 298 L480 363 L596 298 L596 319 L480 386 L364 319 Z" fill="url(#plate-side)"/>
+      <path class="plate-top" d="M364 298 L480 233 L596 298 L480 363 Z" fill="url(#context-top)"/>
+      <path class="edge-highlight" d="M368 298 L480 236 L592 298"/>
+    </g>
+
+    <g id="context-content" class="context-reveal" clip-path="url(#context-clip)">
+      <g id="context-semantic-markers">
+        <g transform="translate(425 284)">
+          <path class="semantic-chip" d="M-20 0 L0 -11 L20 0 L0 11 Z"/>
+          <path class="semantic-mark" d="M-9 -3 H-3 M3 -3 H9 M-9 3 H9"/>
+          <circle class="relay-node-core" cx="-3" cy="-3" r="1.7"/>
+        </g>
+
+        <g transform="translate(480 264)">
+          <path class="semantic-chip" d="M-22 0 L0 -12 L22 0 L0 12 Z"/>
+          <path class="semantic-mark" d="M-11 -5 H11 M-7 0 H7 M-11 5 H11"/>
+          <circle class="relay-node-core" cx="0" cy="0" r="1.8"/>
+        </g>
+
+        <g transform="translate(535 285)">
+          <path class="semantic-chip" d="M-22 0 L0 -12 L22 0 L0 12 Z"/>
+          <path class="semantic-mark" d="M-10 -6 H8 M-10 0 H3 M-10 6 H6"/>
+        </g>
+
+        <g transform="translate(480 317)">
+          <path class="semantic-chip" d="M-22 0 L0 -12 L22 0 L0 12 Z"/>
+          <path class="semantic-mark" d="M-11 -4 H1 M6 -4 H11 M-11 4 H-6 M-1 4 H11"/>
+          <path class="semantic-mark" d="M1 -8 L7 -4 L1 0 M-1 0 L-7 4 L-1 8"/>
+        </g>
+      </g>
+
+      <g id="context-visited-dots">
+        <circle class="visited-dot visit-context-own" cx="425" cy="284" r="1.55"/>
+        <circle class="visited-dot visit-context-requests" cx="535" cy="285" r="1.55"/>
+        <circle class="visited-dot visit-context-resources" cx="480" cy="264" r="1.55"/>
+        <circle class="visited-dot visit-context-center" cx="480" cy="317" r="1.55"/>
+      </g>
+    </g>
+  </g>
+
+  <g id="top-cap" filter="url(#plate-shadow)">
+    <g id="cap-plate">
+      <path class="plate-side" d="M419 254 L480 288 L541 254 L541 270 L480 305 L419 270 Z" fill="url(#plate-side)"/>
+      <path class="plate-top" d="M419 254 L480 220 L541 254 L480 288 Z" fill="url(#cap-top)" stroke="rgba(241, 199, 118, 0.36)" stroke-width="1"/>
+      <path class="edge-highlight" d="M423 254 L480 222 L537 254"/>
+      <path class="semantic-mark" d="M463 255 L480 246 L497 255 L480 264 Z"/>
+      <path class="semantic-mark" d="M472 255 L480 251 L488 255"/>
+    </g>
+  </g>
+
+  <g id="context-fanout-ascent">
+    <circle class="context-center-hold-dot" cx="480" cy="263" r="4.5"/>
+
+    <path class="context-fanout-route" pathLength="100" d="M480 263 C462 255 442 239 425 230">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.882;0.90;1" values="0;0;0.94;0.94;0;0"/>
+    </path>
+    <path class="context-fanout-route" pathLength="100" d="M480 263 C499 255 520 240 535 231">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.882;0.90;1" values="0;0;0.94;0.94;0;0"/>
+    </path>
+
+    <g class="context-fanout-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.887;0.892;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" keyPoints="0;0;1;1" path="M480 263 C462 255 442 239 425 230"/>
+    </g>
+    <g class="context-fanout-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.887;0.892;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" keyPoints="0;0;1;1" path="M480 263 L480 210"/>
+    </g>
+    <g class="context-fanout-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.887;0.892;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" keyPoints="0;0;1;1" path="M480 263 C499 255 520 240 535 231"/>
+    </g>
+    <path class="context-ascent-route" pathLength="100" d="M425 230 C450 209 472 177 480 151"/>
+    <path class="context-ascent-route" pathLength="100" d="M535 231 C510 209 488 177 480 151"/>
+
+    <g class="context-ascent-chaser context-ascent-original" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M425 230 C450 209 472 177 480 151"/>
+    </g>
+    <g class="context-ascent-chaser context-ascent-original" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="4.1"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M480 263 L480 151"/>
+    </g>
+    <g class="context-ascent-chaser context-ascent-original" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.91;0.94;1" keyPoints="0;0;0;1;1" path="M480 210 L480 151"/>
+    </g>
+    <g class="context-ascent-chaser context-ascent-original" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M535 231 C510 209 488 177 480 151"/>
+    </g>
+    <circle class="top-convergence-glow" cx="480" cy="151" r="22"/>
+    <circle class="top-convergence-core" cx="480" cy="151" r="4.8"/>
+  </g>
+
+  <g id="connectors-between-layers" class="context-reveal">
+    <path class="internal-line-soft" d="M480 363 L480 350"/>
+    <circle class="waypoint" cx="480" cy="356" r="2"/>
+    <circle class="waypoint" cx="480" cy="389" r="2"/>
+  </g>
+
+  <g id="side-labels">
+    <g class="handoff-label compact-layer-label" transform="translate(681 151)">
+      <path class="label-rule" d="M-126 0 H-14"/>
+      <text class="label-heading" x="0" y="0">HANDOFF</text>
+    </g>
+
+    <g class="context-label compact-layer-label" transform="translate(681 250)">
+      <path class="label-rule" d="M-81 0 H-14"/>
+      <text class="label-heading" x="0" y="0">CONTEXT</text>
+    </g>
+
+    <g class="flow-label compact-layer-label" transform="translate(681 340)">
+      <path class="label-rule" d="M-66 0 H-14"/>
+      <text class="label-heading" x="0" y="0">FLOW</text>
+    </g>
+
+    <g class="systems-label compact-layer-label" transform="translate(681 430)">
+      <path class="label-rule" d="M-51 0 H-14"/>
+      <text class="label-heading" x="0" y="0">SYSTEM</text>
+    </g>
+  </g>
+
+  <g id="context-vertical-overlays">
+    <path class="context-vertical-draw-line context-ascent-side-overlay" pathLength="100" d="M425 230 C450 209 472 177 480 151">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;0.9;0.9;0;0"/>
+    </path>
+    <path class="context-vertical-draw-line context-vertical-draw-line-aura context-vertical-fanout-overlay" pathLength="100" d="M480 263 L480 210"/>
+    <path class="context-vertical-draw-line context-vertical-fanout-overlay" pathLength="100" d="M480 263 L480 210">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.78;0.84;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.778;0.78;0.882;0.90;1" values="0;0;0.94;0.94;0;0"/>
+    </path>
+    <path class="context-vertical-draw-line context-vertical-draw-line-aura context-vertical-ascent-overlay" pathLength="100" d="M480 263 L480 151"/>
+    <path class="context-vertical-draw-line context-vertical-ascent-overlay" pathLength="100" d="M480 263 L480 151">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;0.9;0.9;0;0"/>
+    </path>
+    <path class="context-vertical-draw-line context-ascent-side-overlay" pathLength="100" d="M535 231 C510 209 488 177 480 151">
+      <animate attributeName="stroke-dashoffset" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" values="100;100;0;0"/>
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;0.9;0.9;0;0"/>
+    </path>
+    <g class="context-ascent-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="4"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M425 230 C450 209 472 177 480 151"/>
+    </g>
+    <g class="context-ascent-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M480 263 L480 151"/>
+    </g>
+    <g class="context-ascent-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.91;0.94;1" keyPoints="0;0;0;1;1" path="M480 210 L480 151"/>
+    </g>
+    <g class="context-ascent-chaser" opacity="0">
+      <animate attributeName="opacity" begin="0s" dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.876;0.88;0.962;0.972;1" values="0;0;1;1;0;0"/>
+      <circle class="context-travel-dot" r="3.8"/>
+      <animateMotion dur="44s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.88;0.94;1" keyPoints="0;0;1;1" path="M535 231 C510 209 488 177 480 151"/>
+    </g>
+  </g>
+</svg>

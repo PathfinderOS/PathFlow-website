@@ -1,1 +1,7 @@
+/services/crm-systems /services/crm-automation 301
+/services/lead-intake /services/lead-intake-automation 301
+/services/app-integrations /services/workflow-automation 301
+/services/dashboards /services/dashboards-reporting 301
+/services/managed-hosting /services/managed-automation 301
+/solutions/handoffs /platform/handoffs 301
 /* /index.html 200

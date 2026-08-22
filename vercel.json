@@ -1,4 +1,31 @@
 {
+  "redirects": [
+    {
+      "source": "/services/crm-systems",
+      "destination": "/services/crm-automation",
+      "permanent": true
+    },
+    {
+      "source": "/services/lead-intake",
+      "destination": "/services/lead-intake-automation",
+      "permanent": true
+    },
+    {
+      "source": "/services/app-integrations",
+      "destination": "/services/workflow-automation",
+      "permanent": true
+    },
+    {
+      "source": "/services/dashboards",
+      "destination": "/services/dashboards-reporting",
+      "permanent": true
+    },
+    {
+      "source": "/services/managed-hosting",
+      "destination": "/services/managed-automation",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
