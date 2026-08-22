@@ -353,6 +353,561 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
     ],
   },
   {
+    path: '/resources/github-outage-retry-storm-workflow-design',
+    slug: 'github-outage-retry-storm-workflow-design',
+    category: 'Automation',
+    type: 'guide',
+    topics: ['Automation', 'Reliability', 'n8n', 'Architecture', 'Incident Analysis'],
+    status: 'published',
+    publishedAt: '2026-08-22',
+    eyebrow: 'Resources / Automation Reliability',
+    title: "GitHub's 8-Hour Outage Is a Workflow Design Lesson: Retries Can Make Failures Worse",
+    shortTitle: 'Retries Can Make Failures Worse',
+    description:
+      "GitHub's August 17 outage showed how retries can amplify failures. Design safer n8n and automation workflows with backoff, jitter, retry budgets, idempotency and queue limits.",
+    dek:
+      'Retries are not automatically resilience. A retry is another request, and when a dependency is already unhealthy, uncontrolled retries can turn a partial failure into a wider outage.',
+    readingTime: '13 min read',
+    tags: ['Automation', 'Reliability', 'n8n', 'Architecture', 'Incident Analysis'],
+    seo: {
+      title: "GitHub's 8-Hour Outage Is a Workflow Design Lesson",
+      description:
+        "GitHub's August 17 outage showed how retries can amplify failures. Learn how to design safer n8n and automation workflows with backoff, jitter, retry budgets, idempotency, and queue limits.",
+      ogTitle: "GitHub's 8-Hour Outage Is a Workflow Design Lesson",
+    },
+    sections: [
+      {
+        id: 'intro',
+        type: 'intro',
+        paragraphs: [
+          'On August 17, 2026, GitHub experienced a major outage that lasted 7 hours and 47 minutes.',
+          'GitHub.com, authentication, GitHub Actions, APIs, pull requests, issues and Copilot were disrupted. The incident began when traffic reached a new peak and a critical component in GitHub\'s Central US infrastructure failed to scale with it.',
+          'The interesting workflow-design lesson is not only the initial capacity failure. During recovery, errors in some Copilot services triggered retry behavior that increased traffic and complicated restoration.',
+          'That is the part automation consultants should stare at for a minute.',
+        ],
+        questionsLabel: 'Retry storm questions',
+        questions: [
+          'What should retry?',
+          'How often?',
+          'For how long?',
+          'What happens when retrying makes the dependency worse?',
+        ],
+        closing:
+          'Retries are not automatically resilience. A retry is another request.',
+      },
+      {
+        id: 'short-version',
+        type: 'short',
+        title: 'The short version',
+        paragraphs: [
+          'GitHub\'s August 17 outage was a GitHub-scale event, but the failure pattern is familiar at much smaller scale.',
+          'An API slows down. Workflows fail. The workflows retry. More workflows fail and retry. Queues grow. Workers stay occupied. The dependency receives even more traffic exactly when it has the least spare capacity.',
+          'That can happen in n8n, custom background jobs, Zapier-style automations, CRM integrations, document workflows, webhook processors and client deployment pipelines.',
+          'A resilient workflow is not one that retries forever. It is one that knows when to retry, when to wait and when to stop.',
+        ],
+      },
+      {
+        id: 'github-incident',
+        type: 'prose',
+        title: 'Start with the GitHub incident',
+        paragraphs: [
+          'GitHub reported that a critical infrastructure component in Central US failed to scale during record traffic. The resulting capacity pressure contributed to authentication failures and broader service degradation across GitHub.com and dependent services.',
+          'Most services recovered earlier in the day, while some Copilot services took longer. GitHub said errors in those services triggered a client-side retry loop that increased traffic during recovery and had to be mitigated before normal traffic could safely return.',
+          'GitHub\'s remediation is also revealing: consistent retry limits, retry budgets and variable timeouts across service-to-service interactions, along with work to isolate critical systems and reduce shared dependencies.',
+        ],
+        emphasis:
+          'The postmortem is a reminder that retry behavior is part of system architecture, not a checkbox at the bottom of an HTTP node.',
+      },
+      {
+        id: 'retry-amplification',
+        type: 'prose',
+        title: 'Why retries can make outages worse',
+        paragraphs: [
+          'A single failed request is usually harmless. Twenty active workflows each retrying five times against an already overloaded dependency is different.',
+          'The original failure may be small. The retry traffic is self-inflicted. Every retry competes for the same constrained resources that are already failing.',
+          'In a client automation system, retries consume more than API capacity. They can consume worker slots, queue capacity, database connections, memory, execution time and third-party rate limits.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Retry amplification',
+            code: `API slows down
+    |
+Workflow request fails
+    |
+Workflow retries
+    |
+Other workflows fail and retry
+    |
+API receives even more traffic
+    |
+Queue grows
+    |
+Workers stay occupied
+    |
+More retries accumulate
+    |
+Everything catches fire politely`,
+          },
+        ],
+        emphasis:
+          '"Retry on failure" is not a complete reliability strategy. Sometimes it is just a polite way to make a dependency busier.',
+      },
+      {
+        id: 'classify-errors',
+        type: 'prose',
+        title: 'Not every error should be retried',
+        paragraphs: [
+          'The first design choice is error classification.',
+          'Some failures are likely temporary. Others are telling you the request is wrong, the credentials are invalid or the business rule cannot be satisfied. Retrying those blindly just produces the same failure with extra load.',
+        ],
+        records: [
+          {
+            title: 'Usually do not retry blindly',
+            fields: [
+              { label: '400 Bad Request', value: 'The payload may be malformed or missing required fields.' },
+              { label: '401 Unauthorized', value: 'Credentials may be invalid, expired or unavailable.' },
+              { label: '403 Forbidden', value: 'The caller may not have permission.' },
+              { label: 'Validation failure', value: 'The business input may need correction before another attempt.' },
+              { label: 'Permanent business-rule failure', value: 'The operation may be rejected until the underlying record changes.' },
+            ],
+          },
+          {
+            title: 'Often reasonable to retry carefully',
+            fields: [
+              { label: 'Network timeout', value: 'The dependency may have been slow or temporarily unreachable.' },
+              { label: 'Transient 5xx response', value: 'The provider may be degraded.' },
+              { label: 'Temporary connection failure', value: 'Network or service availability may recover.' },
+              { label: '429 Too Many Requests', value: 'Retry only according to provider guidance, such as Retry-After when available.' },
+            ],
+          },
+        ],
+        paragraphsAfter: [
+          'Exact policies depend on the API. The point is to decide intentionally instead of letting every error take the same path.',
+        ],
+      },
+      {
+        id: 'exponential-backoff',
+        type: 'prose',
+        title: 'Use exponential backoff',
+        paragraphs: [
+          'Immediate retries are dangerous because they concentrate traffic during the worst moment.',
+          'Backoff increases the delay between attempts. That gives the dependency time to recover and gives your own workers a chance to stop piling up around a failing call.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Bad: fixed short retry delay',
+            code: `Attempt 1
+|-- wait 5 sec
+Attempt 2
+|-- wait 5 sec
+Attempt 3
+|-- wait 5 sec
+Attempt 4`,
+          },
+          {
+            label: 'Better: increasing retry delay',
+            code: `Attempt 1
+|-- wait 30 sec
+Attempt 2
+|-- wait 2 min
+Attempt 3
+|-- wait 10 min
+Attempt 4`,
+          },
+        ],
+        emphasis:
+          'The goal is not to keep hammering until something works. The goal is to give recovery a chance.',
+      },
+      {
+        id: 'jitter',
+        type: 'prose',
+        title: 'Add jitter',
+        paragraphs: [
+          'Backoff alone can still synchronize traffic.',
+          'If 500 workflows all fail at 12:00:00 and all wait exactly 60 seconds, they may all retry together at 12:01:00. Congratulations: the outage now has a metronome.',
+          'Jitter adds controlled randomness to the delay so retries spread across a window instead of forming another spike.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Concept',
+            code: `retry delay = exponential backoff + random jitter`,
+          },
+        ],
+      },
+      {
+        id: 'retry-ceilings-budgets',
+        type: 'prose',
+        title: 'Set retry ceilings and retry budgets',
+        paragraphs: [
+          'GitHub specifically called out retry limits and retry budgets in its remediation work.',
+          'A retry ceiling limits one operation. A retry budget limits aggregate retry traffic. You need both ideas, even if the small-client implementation is simple.',
+        ],
+        records: [
+          {
+            title: 'Retry ceiling',
+            fields: [
+              { label: 'Scope', value: 'One operation or execution.' },
+              { label: 'Example', value: 'No invoice creation attempt retries more than four times.' },
+              { label: 'Purpose', value: 'Prevent one item from looping forever.' },
+            ],
+          },
+          {
+            title: 'Retry budget',
+            fields: [
+              { label: 'Scope', value: 'A workflow, dependency or system.' },
+              { label: 'Example', value: 'Only three concurrent retries may target one CRM API.' },
+              { label: 'Purpose', value: 'Prevent many items from collectively overwhelming a dependency.' },
+            ],
+          },
+        ],
+        listTitle: 'For consultant-scale systems, a retry budget can be practical:',
+        list: [
+          'No workflow retries more than four times.',
+          'Only three concurrent retries against one dependency.',
+          'Stop retrying after 30 minutes.',
+          'Pause non-critical jobs while a dependency is degraded.',
+          'Escalate to an operator when the retry budget is exhausted.',
+        ],
+        emphasis:
+          'Infinite retries are not persistence. They are a denial-of-service attack with project-management branding.',
+      },
+      {
+        id: 'idempotency',
+        type: 'prose',
+        title: 'Make retried writes safe with idempotency',
+        paragraphs: [
+          'Retries introduce a second problem: the first request may actually have succeeded even if the workflow did not receive the response.',
+          'A workflow sends POST /create-invoice. The API creates the invoice, but the response times out. The workflow retries. Now the client has two invoices, and everyone gets to learn a new word in a tense Slack thread.',
+          'Idempotency means repeated attempts can produce one intended result. Some APIs support idempotency keys directly. In other systems, you may need your own stable external ID, duplicate lookup or write-ahead record before making the call.',
+        ],
+        listTitle: 'Write operations that deserve special care:',
+        list: [
+          'Payment creation',
+          'Contact creation',
+          'Invoice generation',
+          'Document uploads',
+          'CRM updates',
+          'Lead creation',
+          'Webhook processing',
+        ],
+        codeBlocks: [
+          {
+            label: 'Idempotency record',
+            code: `operation:
+create_invoice
+
+idempotency_key:
+client-123:invoice:2026-08
+
+external_status:
+pending | succeeded | failed
+
+provider_record:
+[invoice id when known]`,
+          },
+        ],
+      },
+      {
+        id: 'dead-letter-handling',
+        type: 'prose',
+        title: 'Define dead-letter handling',
+        paragraphs: [
+          'When retries are exhausted, the item should not disappear.',
+          'A dead-letter queue is simply a place where failed work goes after the automatic path gives up. It does not have to be Kafka to count. It can be a database table, a CRM task, a Notion queue, a Slack alert linked to stored payload data or a Pathflow request record.',
+        ],
+        listTitle: 'After retries are exhausted:',
+        list: [
+          'Move the item to a failed-job queue.',
+          'Store the payload for later replay.',
+          'Create a manual-review task.',
+          'Send an operator alert.',
+          'Record the failure against the client or project.',
+          'Allow explicit retry after the dependency recovers.',
+        ],
+        emphasis:
+          'Automatic failure handling should create a better human decision point, not a quieter data-loss event.',
+      },
+      {
+        id: 'queue-concurrency-limits',
+        type: 'prose',
+        title: 'Use queue and concurrency limits',
+        paragraphs: [
+          'Cascading failure often reaches automation platforms through execution slots.',
+          'Twenty workflows talk to one API. That API becomes slow. All 20 executions remain active. New workflows keep entering the system. Soon unrelated automations cannot run because every worker is waiting on the same sick dependency.',
+          'This is where queue design and concurrency controls matter. The goal is to stop one failing dependency from consuming the whole automation environment.',
+        ],
+        listTitle: 'Controls to consider:',
+        list: [
+          'Global concurrency limits',
+          'Per-dependency concurrency limits',
+          'Worker queues',
+          'Execution timeouts',
+          'Separate high-priority and low-priority workloads',
+          'Backpressure for new jobs when a dependency is degraded',
+        ],
+      },
+      {
+        id: 'circuit-breakers',
+        type: 'prose',
+        title: 'Add dependency health checks and circuit breakers',
+        paragraphs: [
+          'A circuit breaker prevents every workflow from discovering the same outage independently.',
+          'Instead of letting each execution call the dependency, fail and retry, the system notices repeated failures and temporarily changes behavior.',
+        ],
+        examples: [
+          {
+            label: 'Circuit breaker flow',
+            title: 'Dependency-aware execution',
+            items: [
+              'Detect repeated dependency failures.',
+              'Mark the dependency degraded.',
+              'Temporarily stop non-critical requests.',
+              'Periodically probe for recovery.',
+              'Resume once healthy.',
+            ],
+          },
+        ],
+        paragraphsAfter: [
+          'Many small deployments do not need a formal circuit-breaker library. The architectural principle matters more than the branding.',
+          'In n8n, for example, a workflow can check a dependency-health record before processing another batch and route non-critical work into a wait or review path when the dependency is unhealthy.',
+        ],
+      },
+      {
+        id: 'some-workflows-should-wait',
+        type: 'prose',
+        title: 'Some workflows should simply wait',
+        paragraphs: [
+          'Consultants often build workflows as if every task must complete immediately.',
+          'Many do not.',
+          'If a dependency is degraded, the safest response may be to queue the work and revisit it later. That is not failure. That is the workflow knowing the difference between urgent and merely scheduled.',
+        ],
+        records: [
+          {
+            title: 'Often safe to wait',
+            fields: [
+              { label: 'Analytics synchronization', value: 'Delay until the provider recovers.' },
+              { label: 'CRM enrichment', value: 'Queue enrichment without blocking lead capture.' },
+              { label: 'Reporting', value: 'Run later instead of retrying through an outage.' },
+              { label: 'Document classification', value: 'Preserve the document and classify asynchronously.' },
+              { label: 'Nightly exports', value: 'Skip or defer rather than overload the dependency.' },
+            ],
+          },
+          {
+            title: 'May need faster escalation',
+            fields: [
+              { label: 'Payment processing', value: 'Avoid duplicate writes and alert quickly.' },
+              { label: 'Authentication', value: 'Treat as client-facing availability risk.' },
+              { label: 'Security events', value: 'Escalate instead of waiting silently.' },
+              { label: 'Transactional client operations', value: 'Define user-visible behavior and support response.' },
+            ],
+          },
+        ],
+        emphasis:
+          'Ask the awkward but useful question: does this workflow actually need to retry right now?',
+      },
+      {
+        id: 'failure-policy',
+        type: 'prose',
+        title: 'A practical failure policy',
+        paragraphs: [
+          'A good failure policy makes the workflow boring under stress.',
+          'The exact implementation depends on the platform, but the shape should be explicit: classify the failure, retry only where useful, back off with jitter, stop at a ceiling and preserve failed work for review.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Example failure policy',
+            code: `HTTP Request
+    |
+Classify failure
+    |-- 400 / validation -> stop + record error
+    |-- 401 / 403       -> stop + alert owner
+    |-- 429             -> respect Retry-After
+    |-- timeout / 5xx
+    |       |
+    |   retry budget
+    |       |
+    |   30s + jitter
+    |       |
+    |   2m + jitter
+    |       |
+    |   10m + jitter
+    |
+    |-- retries exhausted
+            |
+       dead-letter queue
+            |
+       operator review`,
+          },
+        ],
+      },
+      {
+        id: 'n8n-translation',
+        type: 'prose',
+        title: 'How this translates to n8n',
+        paragraphs: [
+          'In n8n, the principle is not "turn on every retry setting." The principle is to make failure behavior visible in the workflow design.',
+          'The HTTP Request node supports retry settings such as max tries and wait between tries. Workflow settings can include error workflows and timeouts. Wait nodes can pause an execution and resume later. Queue mode and concurrency settings matter when self-hosting or running larger deployments.',
+          'Those are ingredients. The recipe still needs judgment.',
+        ],
+        listTitle: 'In practical n8n terms, consider:',
+        list: [
+          'Use error workflows for alerting and persistent failure records.',
+          'Use Wait nodes for controlled delays instead of tight retry loops.',
+          'Keep explicit retry counters when building custom retry branches.',
+          'Respect Retry-After or provider rate-limit guidance when available.',
+          'Use execution timeout settings so slow dependencies do not occupy workers forever.',
+          'Use queue mode and worker concurrency deliberately where applicable.',
+          'Store failed payloads for review and replay.',
+          'Avoid uncontrolled loops that keep calling the same failing API.',
+        ],
+        emphasis:
+          'The workflow canvas should show how the system behaves when the happy path is unavailable.',
+      },
+      {
+        id: 'pathflow-connection',
+        type: 'prose',
+        title: 'Document failure behavior, not only components',
+        paragraphs: [
+          'Architecture documentation often stops at "Workflow talks to Google Drive API."',
+          'That is useful, but incomplete. The more operational question is: what happens when Google Drive stops responding, rate-limits the workflow or accepts the write but times out before returning a response?',
+          'A client system map becomes more useful when it records failure policy, ownership and degraded behavior beside the dependency itself.',
+        ],
+        codeBlocks: [
+          {
+            label: 'Workflow failure record',
+            code: `Workflow:
+Client Document Sync
+
+Dependency:
+Google Drive API
+
+Failure policy:
+Retry transient 5xx / timeout
+
+Retry limit:
+4
+
+Backoff:
+Exponential + jitter
+
+Max concurrency:
+3
+
+On exhaustion:
+Manual review queue
+
+Owner:
+Consultant
+
+Degraded behavior:
+Queue new uploads`,
+          },
+        ],
+        paragraphsAfter: [
+          'Understanding what talks to what is useful. Understanding what happens when one of those systems stops responding is more operationally valuable.',
+        ],
+      },
+      {
+        id: 'consultant-checklist',
+        type: 'checklist',
+        title: 'Consultant checklist',
+        paragraphs: [
+          'Use this as a review pass for API integrations, n8n workflows, background jobs and client automations that talk to external services.',
+        ],
+        listLabel: 'Workflow reliability checklist',
+        items: [
+          'Classify retryable and permanent failures.',
+          'Use exponential backoff.',
+          'Add jitter.',
+          'Set a hard retry ceiling.',
+          'Define a retry budget.',
+          'Respect provider rate-limit guidance.',
+          'Make write operations idempotent.',
+          'Define dead-letter handling.',
+          'Set queue and concurrency limits.',
+          'Prevent one dependency from consuming every worker.',
+          'Decide which workflows can wait.',
+          'Document ownership and escalation behavior.',
+          'Test failure scenarios intentionally.',
+        ],
+        closing:
+          'A resilient workflow is not one that retries forever. It is one that knows when to retry, when to wait, and when to stop.',
+      },
+      {
+        id: 'related-resources',
+        type: 'prose',
+        title: 'Related resources',
+        paragraphs: [
+          'These pieces cover adjacent parts of the same operational picture: deployment infrastructure, automation ownership, n8n delivery choices and runtime failure response.',
+        ],
+        relatedLinks: [
+          {
+            label: 'GitHub Self-Hosted Runner Brownouts Start August 24',
+            href: '/resources/github-self-hosted-runner-brownouts-2026',
+            description: 'Deployment infrastructure has lifecycle dependencies too.',
+          },
+          {
+            label: 'Zapier vs n8n for Client Automation',
+            href: '/resources/zapier-vs-n8n-client-automation',
+            description: 'Choose an automation platform by ownership, complexity and maintenance model.',
+          },
+          {
+            label: 'What to Document Before an Automation Consultant Leaves',
+            href: '/resources/automation-consultant-handoff-documentation',
+            description: 'Document ownership, credentials, hosting, deployments, monitoring and recovery paths.',
+          },
+          {
+            label: 'Your VPS Is Running XMRig. Now What?',
+            href: '/resources/your-vps-is-running-xmrig-now-what',
+            description: 'Respond to runtime failure as an operational incident, not only a symptom.',
+          },
+        ],
+      },
+      {
+        id: 'sources',
+        type: 'sources',
+        title: 'Sources',
+      },
+    ],
+    sources: [
+      {
+        label: 'The August 17 outage, and the work ahead',
+        provider: 'GitHub Blog',
+        href: 'https://github.blog/news-insights/company-news/the-august-17-outage-and-the-work-ahead/',
+        description:
+          'Official GitHub postmortem and reliability update covering the August 17, 2026 outage, affected services, Central US capacity failure, retry-loop impact during Copilot recovery and remediation work.',
+      },
+      {
+        label: 'GitHub Status',
+        provider: 'GitHub Status',
+        href: 'https://www.githubstatus.com/',
+        description:
+          'Official GitHub status page with incident timing and affected service updates for GitHub.com incidents.',
+      },
+      {
+        label: 'HTTP Request common issues',
+        provider: 'n8n Docs',
+        href: 'https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/common-issues/',
+        description:
+          'Official n8n documentation covering HTTP Request batching and Retry on Fail settings.',
+      },
+      {
+        label: 'Waiting',
+        provider: 'n8n Docs',
+        href: 'https://docs.n8n.io/build/flow-logic/wait/',
+        description:
+          'Official n8n documentation for using the Wait node to pause workflow execution and resume later.',
+      },
+      {
+        label: 'Executions environment variables',
+        provider: 'n8n Docs',
+        href: 'https://docs.n8n.io/deploy/host-n8n/configure-n8n/basic-configuration/use-environment-variables/executions/',
+        description:
+          'Official n8n execution configuration reference covering queue mode, execution timeout and concurrency-related settings.',
+      },
+    ],
+  },
+  {
     path: '/resources/zapier-vs-n8n-client-automation',
     slug: 'zapier-vs-n8n-client-automation',
     category: 'Automation',
