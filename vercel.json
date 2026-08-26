@@ -24,6 +24,16 @@
       "source": "/services/managed-hosting",
       "destination": "/services/managed-automation",
       "permanent": true
+    },
+    {
+      "source": "/platform/architecture",
+      "destination": "/solutions/architecture",
+      "permanent": true
+    },
+    {
+      "source": "/solutions/handoffs",
+      "destination": "/platform/handoffs",
+      "permanent": true
     }
   ],
   "rewrites": [

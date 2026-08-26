@@ -1,5 +1,337 @@
 export const resourceArticles = [
   {
+    path: '/resources/highlevel-project-management-crm-client-delivery',
+    slug: 'highlevel-project-management-crm-client-delivery',
+    category: 'CRM',
+    type: 'guide',
+    topics: ['CRM', 'Delivery', 'Automation', 'Operations'],
+    status: 'published',
+    publishedAt: '2026-08-25',
+    eyebrow: 'Resources / CRM Delivery',
+    title: 'HighLevel Now Has Project Management. Should Your CRM Also Run Client Delivery?',
+    shortTitle: 'HighLevel Project Management and Client Delivery',
+    description:
+      'HighLevel Project Management brings CRM-linked tasks, Spaces, Lists, Kanban views, and AI spend controls into sharper focus. Here is how to choose the right boundary for client delivery work.',
+    dek:
+      'HighLevel is expanding from customer records into delivery operations. The practical boundary is which work benefits from living beside the CRM record and which context needs a broader operational home.',
+    readingTime: '12 min read',
+    tags: ['HighLevel', 'GoHighLevel project management', 'CRM', 'Client delivery', 'AI usage limits'],
+    image: {
+      src: '/resources/ghl-pm.png',
+      alt: 'HighLevel project management workspace showing CRM-linked delivery work in a structured project view.',
+      width: 1536,
+      height: 1024,
+    },
+    seo: {
+      title: 'HighLevel Project Management and CRM-Linked Delivery | Pathflow',
+      description:
+        'HighLevel Project Management adds CRM-linked delivery work, task structure, Kanban views, and AI Usage Limits. Learn what belongs inside the CRM and where broader system context still needs to live.',
+      ogTitle: 'HighLevel Project Management and CRM-Linked Delivery',
+    },
+    sections: [
+      {
+        id: 'intro',
+        type: 'intro',
+        paragraphs: [
+          'HighLevel documented a more substantial Project Management layer on August 24, 2026, alongside AI Usage Limits for controlling billable AI consumption.',
+          'Together, those features point in the same direction: the CRM is becoming a more capable place to plan work, assign owners, track delivery, and govern usage-based automation.',
+          'For consultants, agencies, technical operators, and teams delivering client work, the useful question is a boundary question. Some work becomes easier when it sits near contacts, opportunities, and account history. Some context still needs to describe the broader system that remains after the project work is complete.',
+        ],
+        questionsLabel: 'CRM delivery boundary questions',
+        questions: [
+          'Which work belongs beside the customer record?',
+          'Which tasks need CRM association?',
+          'Which costs need hard enforcement?',
+          'Which deployed systems need operational context later?',
+        ],
+        closing:
+          'A CRM can be a good home for CRM-linked delivery work without becoming the full map of every system the work creates.',
+      },
+      {
+        id: 'short-version',
+        type: 'short',
+        title: 'The short version',
+        paragraphs: [
+          'HighLevel Project Management gives teams Spaces, Folders, Lists, tasks, subtasks, comments, custom fields, configurable statuses, private Spaces, direct task links, and Kanban or List views.',
+          'The strategically interesting part is that tasks can be linked to CRM records and can appear in multiple Lists without creating duplicate tasks.',
+          'HighLevel AI Usage Limits add monthly spending controls at the agency, sub-account, and user levels, with alerts at 70%, 80%, 90%, and 100%.',
+          'Configured limits notify by default. Hard-stop enforcement requires choosing Block AI at the limit.',
+          'CRM-native project management is a strong fit when delivery work is tightly coupled to CRM entities. Broader system context still matters when the work creates infrastructure, integrations, repositories, environments, deployment paths, or handoff obligations.',
+        ],
+      },
+      {
+        id: 'what-highlevel-project-management-includes',
+        type: 'prose',
+        title: 'What HighLevel Project Management now includes',
+        paragraphs: [
+          'HighLevel describes Project Management as a workspace inside a sub-account for planning and tracking work. It lives under Contacts, on the Tasks tab, which is a revealing placement: project work is presented near the CRM surface rather than as a separate operational product.',
+          'The structure is hierarchical. A Space is the outer container. A Folder is an optional grouping layer inside a Space. A List holds tasks and usually represents a project, client, or ongoing workstream. Tasks can be broken into subtasks.',
+          'Spaces carry several important settings. Statuses are configured per Space, custom fields belong to the Space, and a Space can be made private and shared with named members. That makes Spaces more than a visual grouping. They define workflow, fields, membership, and privacy.',
+        ],
+        records: [
+          {
+            title: 'Project structure',
+            fields: [
+              { label: 'Space', value: 'Outer container for a team, department, client delivery area, or line of work.' },
+              { label: 'Folder', value: 'Optional grouping layer for organizing many Lists inside a Space.' },
+              { label: 'List', value: 'Where tasks live, often representing one project, client, or workstream.' },
+              { label: 'Task', value: 'A unit of work with a status, assignee, dates, priority, custom fields, CRM associations, comments, and subtasks.' },
+              { label: 'Subtask', value: 'A smaller task nested under a parent task when the work needs to be broken down.' },
+            ],
+          },
+          {
+            title: 'Task-level context',
+            fields: [
+              { label: 'CRM records', value: 'Tasks can be linked to associated objects such as contacts and opportunities.' },
+              { label: 'Comments', value: 'Discussion can stay attached to the task instead of scattering across chat or email.' },
+              { label: 'Direct links', value: 'An opened task has its own URL, so collaborators can share a link to the specific work item.' },
+              { label: 'Views', value: 'Kanban and List views show the same tasks in different layouts.' },
+            ],
+          },
+        ],
+        paragraphsAfter: [
+          'The multi-List behavior deserves attention. HighLevel says a task can be added to multiple Lists without duplication. The task keeps its original home List, remains a single task, and updates made from one List appear everywhere that task is visible.',
+          'That helps with delivery work that genuinely crosses team views. A client-facing team and an implementation team may need visibility into the same item without maintaining two copies. The tradeoff is workflow ownership: the task keeps the status workflow of its home List, even when it appears in another Space with different statuses.',
+        ],
+        emphasis:
+          'The strategic value is CRM-linked work with shared visibility and one task record.',
+      },
+      {
+        id: 'why-crm-linked-delivery-is-useful',
+        type: 'prose',
+        title: 'Why CRM-linked delivery work is useful',
+        paragraphs: [
+          'A lot of delivery work starts because something happened in the CRM. A lead became qualified. A deal moved to implementation. A customer requested a change. A renewal or onboarding milestone needs follow-up.',
+          'When that work moves to a separate project-management system, the team often copies context manually: contact names, deal names, account notes, due dates, internal commitments, and status updates. That duplication can work, but it has a cost. People need to keep two systems aligned.',
+          'HighLevel Project Management is useful when the delivery task should remain close to the CRM record that explains why the work exists.',
+        ],
+        listTitle: 'Good fits for CRM-native project management include:',
+        list: [
+          'Client onboarding steps tied to a contact or opportunity',
+          'Post-sale implementation checklists',
+          'Follow-up commitments made during sales conversations',
+          'Service delivery work where account context matters',
+          'Customer-specific issue resolution',
+          'Campaign, content, or launch tasks that need CRM visibility',
+          'Internal operations that benefit from private Spaces',
+        ],
+        paragraphsAfter: [
+          'Custom fields can capture delivery details that matter to the process. Configurable statuses let different Spaces carry different workflows. Private Spaces keep sensitive internal work out of broad view. Kanban and List views let different operators inspect the same work through the layout that suits the moment.',
+          'For teams already working heavily inside HighLevel, that can reduce context switching and improve follow-through. The CRM record, associated task, owner, due date, comments, and current status can live closer together.',
+        ],
+      },
+      {
+        id: 'ai-usage-limits-and-soft-budgets',
+        type: 'prose',
+        title: 'AI Usage Limits and the soft-budget problem',
+        paragraphs: [
+          'The AI Usage Limits documentation matters for a different reason. HighLevel now gives agencies a more explicit way to govern billable AI usage across agency, sub-account, and individual-user levels.',
+          'Limits are monthly. Agency-level settings can establish defaults. Sub-accounts can override those defaults. User-level limits provide another layer inside a sub-account, and HighLevel notes that when both sub-account and user limits apply, the limit with the least remaining allowance takes effect first.',
+          'The operational detail to understand is the default behavior.',
+        ],
+        records: [
+          {
+            title: 'Limit configuration',
+            fields: [
+              { label: 'Default state', value: 'No spending limit is set until a limit is enabled and an amount is entered.' },
+              { label: 'Agency level', value: 'Monthly defaults can be configured per sub-account and per user.' },
+              { label: 'Sub-account level', value: 'A sub-account can use agency defaults or custom monthly limits and behavior.' },
+              { label: 'User level', value: 'Individual users can have their own monthly budgets inside a sub-account.' },
+              { label: 'Alerts', value: 'Threshold alerts are sent at 70%, 80%, 90%, and 100% when an active limit exists.' },
+            ],
+          },
+          {
+            title: 'Limit behavior',
+            fields: [
+              { label: 'Keep AI running, just notify', value: 'The default option. Usage continues after the configured limit is reached and alerts are sent.' },
+              { label: 'Block AI at the limit', value: 'AI stops when the configured limit is reached and resumes when the limit is increased or the month resets.' },
+              { label: 'Important distinction', value: 'A configured limit behaves like a notification threshold unless blocking is explicitly selected.' },
+            ],
+          },
+        ],
+        paragraphsAfter: [
+          'That distinction matters for anyone operating or reselling usage-based automation. A soft budget is useful for visibility. It tells the operator that consumption needs attention. It does not automatically protect the customer experience or the reseller margin if usage continues after the threshold.',
+          'A hard service boundary protects spend, but it can also interrupt live workflows. If AI-powered chat, classification, summarization, routing, or document processing reaches an enforced limit, the downstream business process may pause until someone raises the limit or usage resets.',
+          'The right setting depends on the work. Customer-facing automations may need continuity with fast alerts and escalation. Lower-priority enrichment or internal analysis may tolerate a hard stop. The important part is to decide deliberately and document who responds when usage crosses a threshold.',
+        ],
+        emphasis:
+          'A budget alert and a service boundary are different controls.',
+      },
+      {
+        id: 'where-project-management-stops',
+        type: 'prose',
+        title: 'Where project management stops being enough',
+        paragraphs: [
+          'Project management is excellent for planned work: assign the owner, define the status, set dates, discuss the task, link the CRM record, and move the item forward.',
+          'Technical delivery often leaves behind systems that outlive the task. After the launch, the persistent context may include the CRM, workflow automation, APIs, cloud resources, databases, object storage, source repositories, DNS or CDN configuration, developer applications, OAuth connections, monitoring, and third-party integrations.',
+          'Those pieces need a different kind of context. Someone needs to understand who owns them, who manages them, which environment they belong to, how deployments happen, what credentials or access boundaries exist, where health is monitored, and what a future handoff should include.',
+        ],
+        diagram: {
+          kind: 'flow',
+          label: 'Delivery work becoming operational context',
+          items: [
+            'CRM task',
+            'Implementation work',
+            'Workflow / API / infrastructure',
+            'Production system',
+            'Handoff and maintenance context',
+          ],
+        },
+        listTitle: 'Persistent system context often includes:',
+        list: [
+          'Architecture and data-flow relationships',
+          'Infrastructure ownership',
+          'Deployment relationships',
+          'Service health and alert ownership',
+          'Integration provenance',
+          'Environment boundaries',
+          'Operational resources and admin URLs',
+          'Credential locations by reference',
+          'Handoff documentation',
+          'External systems owned or managed outside the CRM',
+        ],
+        paragraphsAfter: [
+          'This is a scope distinction. HighLevel Project Management can help a team run the work attached to CRM records. A broader system-management layer helps explain what was built, where it runs, and how the pieces relate after the work is done.',
+        ],
+        relatedLinks: [
+          {
+            label: 'Explore Pathflow Architecture',
+            href: '/solutions/architecture',
+            description:
+              'Map services, infrastructure, ownership boundaries, resources, and data flows behind client systems.',
+          },
+          {
+            label: 'Explore Pathflow Handoffs',
+            href: '/platform/handoffs',
+            description:
+              'Keep delivery notes, resources, instructions, project history, and client-facing handoff context together.',
+          },
+        ],
+      },
+      {
+        id: 'choosing-the-right-boundary',
+        type: 'prose',
+        title: 'Choosing the right boundary',
+        paragraphs: [
+          'A useful boundary starts with the object of work.',
+          'If the work is tied to a contact, opportunity, account, onboarding checklist, sales commitment, support follow-up, or client-specific delivery milestone, HighLevel Project Management is a natural place to consider. The CRM association is part of the value.',
+          'If the work creates or changes a persistent technical system, the task should not be the only durable record. The project needs enough architecture, ownership, deployment, and handoff context for the next operator to understand the system later.',
+          'The two layers can work together. A HighLevel task can say that a workflow needs to be deployed for a client opportunity. The system record can show the repository, webhook, automation platform, CRM object, API credentials by reference, deployment path, monitoring owner, and handoff notes.',
+        ],
+        examples: [
+          {
+            label: 'Practical split',
+            title: 'CRM task plus system context',
+            items: [
+              'Track the implementation task beside the relevant contact or opportunity.',
+              'Use the task comments for delivery discussion and status updates.',
+              'Record the deployed services, integrations, environments, and owners in the system map.',
+              'Include the handoff details needed after the task is complete.',
+            ],
+          },
+        ],
+        paragraphsAfter: [
+          'That split keeps CRM-linked work close to the customer while preserving the broader context that survives the project.',
+          'This is also where Pathflow MCP becomes relevant. Agents can read the project, resources, architecture, deployment state, and handoff context around the task before helping with implementation or maintenance work.',
+        ],
+        relatedLink: {
+          label: 'Explore Pathflow MCP',
+          href: '/platform/mcp',
+          description:
+            'Give agents structured access to project context, resources, architecture, deployment state, and handoffs.',
+        },
+      },
+      {
+        id: 'operating-checklist',
+        type: 'checklist',
+        title: 'Operating checklist',
+        paragraphs: [
+          'Use this checklist when deciding whether a delivery workflow should live inside HighLevel Project Management, in another project system, or across both a CRM and a system-management layer.',
+        ],
+        listLabel: 'HighLevel Project Management delivery boundary checklist',
+        items: [
+          'Is the work directly tied to a contact, opportunity, or account?',
+          'Should the CRM record show the delivery status?',
+          'Can one Space workflow accurately represent the task status?',
+          'Would a private Space solve the access boundary?',
+          'Do custom fields capture the delivery details the team needs?',
+          'Would one task appearing in multiple Lists reduce duplicate work?',
+          'Does a secondary List need to understand the home List status workflow?',
+          'Are AI spending limits configured where usage is billable?',
+          'Is the limit notification-only or hard blocking?',
+          'Who responds at the 70%, 80%, 90%, and 100% alert thresholds?',
+          'Does the task create persistent infrastructure, integrations, or repositories?',
+          'Where will architecture, ownership, deployment, health, and handoff context live after completion?',
+        ],
+        closing:
+          'The healthiest setup is the one where the work, the customer context, and the operational context each have a clear home.',
+      },
+      {
+        id: 'related-resources',
+        type: 'prose',
+        title: 'Related resources',
+        paragraphs: [
+          'These Pathflow resources cover the broader delivery context around CRM-linked work, automation ownership, and client handoff.',
+        ],
+        relatedLinks: [
+          {
+            label: 'What to Document Before an Automation Consultant Leaves',
+            href: '/resources/automation-consultant-handoff-documentation',
+            description:
+              'Document ownership, credentials, hosting, deployments, monitoring, recovery paths, and handoff context.',
+          },
+          {
+            label: 'How to Connect Website Lead Forms Directly to a CRM',
+            href: '/resources/connect-website-lead-forms-to-crm',
+            description:
+              'Design a clean website-to-CRM path with server-side validation, credential boundaries, and maintainable handoff.',
+          },
+          {
+            label: 'GitHub Self-Hosted Runner Brownouts Start August 24',
+            href: '/resources/github-self-hosted-runner-brownouts-2026',
+            description:
+              'A reminder that deployment infrastructure has lifecycle dependencies and ownership requirements.',
+          },
+        ],
+      },
+      {
+        id: 'sources',
+        type: 'sources',
+        title: 'Sources',
+      },
+    ],
+    sources: [
+      {
+        label: 'Introduction to Project Management',
+        provider: 'HighLevel Support Portal',
+        href: 'https://help.gohighlevel.com/support/solutions/articles/155000008442-introduction-to-project-management',
+        description:
+          'Official HighLevel documentation for the Project Management workspace, including Spaces, Folders, Lists, tasks, subtasks, private Spaces, custom fields, statuses, CRM associations, direct task links, and Kanban or List views.',
+      },
+      {
+        label: 'Create a task or subtask',
+        provider: 'HighLevel Support Portal',
+        href: 'https://help.gohighlevel.com/support/solutions/articles/155000008444-create-a-task-or-subtask',
+        description:
+          'Official HighLevel documentation covering task contents, subtasks, comments, task links, moving tasks, adding one task to multiple Lists, and status behavior across Lists and Spaces.',
+      },
+      {
+        label: 'Organize work with Spaces, Folders, and Lists',
+        provider: 'HighLevel Support Portal',
+        href: 'https://help.gohighlevel.com/support/solutions/articles/155000008443-organize-work-with-spaces-folders-and-lists',
+        description:
+          'Official HighLevel documentation explaining the Space, Folder, and List hierarchy, including Space-level statuses, custom fields, members, privacy, and color.',
+      },
+      {
+        label: 'AI Usage Limits',
+        provider: 'HighLevel Support Portal',
+        href: 'https://help.gohighlevel.com/support/solutions/articles/155000007813-ai-usage-limits',
+        description:
+          'Official HighLevel documentation for monthly AI usage limits, agency, sub-account, and user-level controls, default notification behavior, hard-stop enforcement, and threshold alerts.',
+      },
+    ],
+  },
+  {
     path: '/resources/github-self-hosted-runner-brownouts-2026',
     slug: 'github-self-hosted-runner-brownouts-2026',
     category: 'DevOps',
@@ -19,6 +351,8 @@ export const resourceArticles = [
     image: {
       src: '/resources/github-self-hosted-runner-brownouts-2026.png',
       alt: 'Dark server rack with a single amber status light representing self-hosted runner brownout risk.',
+      width: 1672,
+      height: 941,
     },
     seo: {
       title: 'GitHub Self-Hosted Runner Brownouts Start August 24, 2026',
@@ -376,6 +710,8 @@ grep -hE 'Current runner version|SelfUpdater|update|Runner.Listener' _diag/*.log
     image: {
       src: '/resources/github-outage-retry-storm-workflow-design.png',
       alt: 'Network cables and server lights representing retry traffic through overloaded automation dependencies.',
+      width: 1536,
+      height: 1024,
     },
     seo: {
       title: "GitHub's 8-Hour Outage Is a Workflow Design Lesson",
@@ -1049,7 +1385,7 @@ Queue new uploads`,
         type: 'prose',
         title: 'A complex n8n workflow starts looking like application logic',
         paragraphs: [
-          'Consider a call workflow where the automation is not just passing one event into one application.',
+          'Consider a call workflow where the automation coordinates more than one event between applications.',
         ],
         diagram: {
           kind: 'branch',
@@ -1088,7 +1424,7 @@ Queue new uploads`,
       {
         id: 'management-models',
         type: 'models',
-        title: 'The real question: who should manage the automation?',
+        title: 'Ownership determines the automation model',
         intro:
           'The tool decision should usually follow the management model. A workflow that is technically impressive but operationally ownerless is not a strong client delivery.',
         models: [
@@ -1540,7 +1876,7 @@ Queue new uploads`,
         type: 'prose',
         title: 'Document where the automation actually runs',
         paragraphs: [
-          'Many automation systems are not only workflow definitions. They may include a hosted instance, database, reverse proxy, worker service, queue, cron job or deployment pipeline.',
+          'Many automation systems include more than workflow definitions: hosted instances, databases, reverse proxies, worker services, queues, cron jobs or deployment pipelines.',
           'For self-hosted systems, record the hosting provider, server name, region, operating system, sizing, container runtime, compose files or manifests, reverse proxy, DNS, TLS, volumes, database, backups, monitoring and update procedure.',
         ],
         records: [
@@ -1562,7 +1898,7 @@ Queue new uploads`,
         type: 'prose',
         title: 'Record the deployment path',
         paragraphs: [
-          'The next person should know not only what to change, but how a safe change reaches production.',
+          'The next person should know what to change and how a safe change reaches production.',
           'Document whether changes are deployed through source control, a CI/CD workflow, SSH, a hosted editor, a publish button or a manual operational process.',
         ],
         examples: [
@@ -3154,7 +3490,7 @@ sudo ufw allow 443/tcp`,
           'Secrets accessible to containers',
         ],
         emphasis:
-          '/var/run/docker.sock is not just another file mount.',
+          '/var/run/docker.sock is a host-control boundary, not a routine file mount.',
       },
       {
         id: 'privileged-containers',
@@ -3864,6 +4200,8 @@ five monitoring daemons`,
         media: {
           src: '/resources/security/xmrig/terminal-xmrig.png',
           alt: 'Terminal screenshot showing top on an Ubuntu VPS with xmrig consuming high CPU alongside expected system services.',
+          width: 1448,
+          height: 1086,
           caption:
             'Unexpected sustained CPU usage may be the first visible symptom. The process itself is only the beginning of the investigation.',
           loading: 'eager',
@@ -3937,7 +4275,7 @@ CPU 90-400%+`,
         type: 'prose',
         title: 'Compare reality with the expected workload',
         paragraphs: [
-          'A small production host should have a reasonably understandable baseline. The question is not only whether the filename looks suspicious. The question is whether the workload is part of the intentionally deployed system.',
+          'A small production host should have a reasonably understandable baseline. The filename alone is insufficient. The system should show whether the workload is part of the intentionally deployed environment.',
         ],
         codeBlocks: [
           {
@@ -4025,7 +4363,7 @@ worker-update-1`,
         title: 'Look for persistence',
         paragraphs: [
           'If XMRig disappears after being killed and then returns, something is launching it.',
-          'The objective is not merely to find a file named xmrig.service. It is to identify anything added or modified that would allow unauthorized execution to survive a restart.',
+          'A file named xmrig.service is only one possible clue. Identify anything added or modified that would allow unauthorized execution to survive a restart.',
         ],
         codeBlocks: [
           {
@@ -4588,7 +4926,7 @@ Follow-up:
         ],
         listTitle: 'Avoid:',
         list: [
-          'Do not just kill XMRig. The execution mechanism may remain.',
+          'Killing XMRig only removes the visible process. The execution mechanism may remain.',
           'Do not immediately terminate the instance. Important evidence may disappear.',
           'Do not leave it connected while investigating casually. A compromised host can continue causing harm.',
           'Do not trust the host because CPU returned to normal. The attacker may have stopped mining or left another persistence mechanism behind.',

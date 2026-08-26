@@ -20,26 +20,44 @@ const caseStudySeo = Object.fromEntries(
     {
       title: caseStudy.seo.title,
       description: caseStudy.seo.description,
+      ogImage: toAbsolutePublicUrl(caseStudy.seo.ogImage || caseStudy.logo?.src),
+      schemaImage: toAbsolutePublicUrl(caseStudy.seo.ogImage || caseStudy.logo?.src),
       schemaType: 'Article',
       schemaName: `${caseStudy.company} case study`,
       datePublished: caseStudy.publishedAt,
+      dateModified: caseStudy.updatedAt || caseStudy.publishedAt,
+      lastmod: caseStudy.updatedAt || caseStudy.publishedAt,
+      articleSection: 'Case Studies',
+      keywords: caseStudy.tags,
     },
   ]),
 );
 
 const resourceArticleSeo = Object.fromEntries(
-  resourceArticles.map((article) => [
-    article.path,
-    {
-      title: article.seo.title,
-      description: article.seo.description,
-      ogTitle: article.seo.ogTitle,
-      ogImage: toAbsolutePublicUrl(article.seo.ogImage || article.image?.src),
-      schemaType: 'Article',
-      schemaName: article.title,
-      datePublished: article.publishedAt,
-    },
-  ]),
+  resourceArticles
+    .filter((article) => article.status === 'published')
+    .map((article) => {
+      const articleImage = toAbsolutePublicUrl(article.image?.src);
+      const modifiedDate = article.updatedAt || article.modifiedAt || article.publishedAt;
+
+      return [
+        article.path,
+        {
+          title: article.seo.title,
+          description: article.seo.description,
+          ogTitle: article.seo.ogTitle,
+          ogImage: toAbsolutePublicUrl(article.seo.ogImage || article.image?.src),
+          schemaImage: articleImage,
+          schemaType: 'Article',
+          schemaName: article.title,
+          datePublished: article.publishedAt,
+          dateModified: modifiedDate,
+          lastmod: modifiedDate,
+          articleSection: article.category,
+          keywords: [...new Set([...(article.tags || []), ...(article.topics || [])])],
+        },
+      ];
+    }),
 );
 
 export const routeSeo = {
@@ -48,31 +66,38 @@ export const routeSeo = {
     description:
       'Pathflow builds, connects, documents, and manages the systems behind business operations and client delivery.',
     schemaType: 'Organization',
+    schemaName: 'Pathflow',
   },
   '/businesses': {
     title: 'Business Automation & CRM Systems | Pathflow',
     description:
       'Connected systems for service businesses: lead intake, CRM, workflow automation, documents, reporting, websites, and ongoing care.',
+    schemaName: 'Business automation and CRM systems',
   },
   '/consultants': {
     title: 'Client System Management & Handoff for Consultants | Pathflow',
     description:
       'Pathflow helps consultants map architecture, document resources, manage client systems, and hand off work without losing context.',
+    schemaName: 'Client system management for consultants',
   },
   '/services': {
     title: 'Connected Business System Services | Pathflow',
     description:
       'Explore Pathflow services for CRM automation, lead intake, workflow automation, connected websites, dashboards, and managed infrastructure.',
+    schemaType: 'CollectionPage',
+    schemaName: 'Pathflow services',
   },
   '/platform': {
     title: 'Pathflow Platform | Architecture, Resources & Handoff',
     description:
       'Pathflow platform keeps architecture, resources, project handoff, and client requests connected to the systems being built and managed.',
+    schemaName: 'Pathflow Platform',
   },
   '/solutions/architecture': {
     title: 'Pathflow Architecture | Map Client Systems Clearly',
     description:
       'Map the applications, infrastructure, services and dependencies behind client projects with living architecture diagrams connected to Pathflow.',
+    schemaName: 'Pathflow Architecture',
   },
   '/solutions/documents': {
     title: 'Pathflow Documents | Client Document Automation',
@@ -167,6 +192,18 @@ export const routeSeo = {
 
 export const indexableRoutes = Object.keys(routeSeo);
 
+export function getSitemapEntries() {
+  return indexableRoutes.map((route) => {
+    const seo = getSeoForPath(route);
+
+    return {
+      route,
+      loc: seo.canonicalUrl,
+      lastmod: normalizeDate(seo.lastmod || seo.dateModified || seo.datePublished),
+    };
+  });
+}
+
 export function normalizePath(pathname = '/') {
   const normalized = pathname.replace(/\/$/, '') || '/';
   return normalized;
@@ -192,6 +229,8 @@ export function getSeoForPath(pathname = '/') {
     canonicalPath,
     canonicalUrl: getPublicUrlForPath(canonicalPath),
     ogImage: route.ogImage || defaultOgImage,
+    ogType: route.ogType || (route.schemaType === 'Article' ? 'article' : 'website'),
+    dateModified: route.dateModified || route.lastmod,
     robots: normalized === canonicalPath ? 'index,follow' : 'noindex,follow',
   };
 }
@@ -214,10 +253,19 @@ export function jsonLdForPath(pathname = '/') {
   };
 
   if (seo.schemaType === 'Organization') {
-    return {
-      '@context': 'https://schema.org',
-      ...organization,
-    };
+    return [
+      {
+        '@context': 'https://schema.org',
+        ...organization,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Pathflow',
+        url: siteUrl,
+        publisher: organization,
+      },
+    ];
   }
 
   const webPage = {
@@ -240,11 +288,12 @@ export function jsonLdForPath(pathname = '/') {
 
   const [group, slug] = segments;
   if (group) {
+    const parent = breadcrumbParentForGroup(group);
     breadcrumbItems.push({
       '@type': 'ListItem',
       position: 2,
-      name: group === 'services' ? 'Services' : titleCase(group),
-      item: getPublicUrlForPath(`/${group}`),
+      name: parent.name,
+      item: getPublicUrlForPath(parent.path),
     });
   }
 
@@ -264,20 +313,25 @@ export function jsonLdForPath(pathname = '/') {
   };
 
   if (seo.schemaType === 'Article') {
-    return [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: seo.schemaName || seo.title.replace(' | Pathflow', ''),
-        description: seo.description,
-        url: seo.canonicalUrl,
-        image: seo.ogImage,
-        publisher: organization,
-        author: organization,
-        ...(seo.datePublished ? { datePublished: seo.datePublished } : {}),
+    const article = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: seo.schemaName || seo.title.replace(' | Pathflow', ''),
+      description: seo.description,
+      url: seo.canonicalUrl,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': seo.canonicalUrl,
       },
-      breadcrumb,
-    ];
+      publisher: organization,
+      ...(seo.schemaImage ? { image: seo.schemaImage } : {}),
+      ...(seo.datePublished ? { datePublished: seo.datePublished } : {}),
+      ...(seo.dateModified ? { dateModified: seo.dateModified } : {}),
+      ...(seo.articleSection ? { articleSection: seo.articleSection } : {}),
+      ...(seo.keywords?.length ? { keywords: seo.keywords.join(', ') } : {}),
+    };
+
+    return [article, breadcrumb];
   }
 
   if (seo.schemaType === 'SoftwareApplication') {
@@ -313,10 +367,27 @@ export function jsonLdForPath(pathname = '/') {
   ];
 }
 
+function normalizeDate(value) {
+  if (!value) return undefined;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  return value;
+}
+
 function titleCase(value = '') {
   return value
     .replace(/[-/]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function breadcrumbParentForGroup(group) {
+  if (group === 'solutions') {
+    return { name: 'Platform', path: '/platform' };
+  }
+
+  return {
+    name: group === 'services' ? 'Services' : titleCase(group),
+    path: `/${group}`,
+  };
 }

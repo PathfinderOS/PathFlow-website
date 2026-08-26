@@ -3,5 +3,6 @@
 /services/app-integrations /services/workflow-automation 301
 /services/dashboards /services/dashboards-reporting 301
 /services/managed-hosting /services/managed-automation 301
+/platform/architecture /solutions/architecture 301
 /solutions/handoffs /platform/handoffs 301
 /* /index.html 200

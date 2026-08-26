@@ -2,12 +2,85 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   getSeoForPath,
-  getPublicUrlForPath,
+  getSitemapEntries,
   indexableRoutes,
   jsonLdForPath,
   legacyRouteMap,
   siteUrl,
 } from '../src/seo.js';
+import { caseStudies } from '../src/caseStudies.js';
+import { publishedResourceArticles } from '../src/resourceArticles.js';
+
+const primaryFallbackLinks = [
+  ['Home', '/'],
+  ['Businesses', '/businesses'],
+  ['Consultants', '/consultants'],
+  ['Services', '/services'],
+  ['Platform', '/platform'],
+  ['Architecture', '/solutions/architecture'],
+  ['Documents', '/solutions/documents'],
+  ['MCP', '/platform/mcp'],
+  ['Handoffs', '/platform/handoffs'],
+  ['Resources', '/resources'],
+  ['Work', '/work'],
+];
+
+const serviceFallbackLinks = [
+  ['CRM & Pipeline Automation', '/services/crm-automation'],
+  ['Lead Intake Automation', '/services/lead-intake-automation'],
+  ['Workflow Automation', '/services/workflow-automation'],
+  ['Connected Websites', '/services/connected-websites'],
+  ['Custom Internal Apps & Portals', '/services/custom-apps'],
+  ['Dashboards & Reporting', '/services/dashboards-reporting'],
+  ['Managed Automation Infrastructure', '/services/managed-automation'],
+  ['n8n Automation & Managed Hosting', '/services/n8n-automation'],
+];
+
+const routeFallbackLinks = {
+  '/': [
+    ['HighLevel Project Management and client delivery', '/resources/highlevel-project-management-crm-client-delivery'],
+    ['Automation consultant handoff documentation', '/resources/automation-consultant-handoff-documentation'],
+    ['Farm Financing Ontario case study', '/work/farm-financing-ontario'],
+  ],
+  '/businesses': [
+    ['Lead intake automation', '/services/lead-intake-automation'],
+    ['CRM automation', '/services/crm-automation'],
+    ['Connected websites', '/services/connected-websites'],
+    ['Resources', '/resources'],
+  ],
+  '/consultants': [
+    ['Pathflow Architecture', '/solutions/architecture'],
+    ['Pathflow Handoffs', '/platform/handoffs'],
+    ['Automation handoff documentation', '/resources/automation-consultant-handoff-documentation'],
+    ['Resources', '/resources'],
+  ],
+  '/platform': [
+    ['Pathflow Architecture', '/solutions/architecture'],
+    ['Pathflow Documents', '/solutions/documents'],
+    ['Pathflow Handoffs', '/platform/handoffs'],
+    ['Pathflow MCP', '/platform/mcp'],
+  ],
+  '/solutions/architecture': [
+    ['Automation consultant handoff documentation', '/resources/automation-consultant-handoff-documentation'],
+    ['GitHub self-hosted runner brownouts', '/resources/github-self-hosted-runner-brownouts-2026'],
+    ['Pathflow Handoffs', '/platform/handoffs'],
+  ],
+  '/solutions/documents': [
+    ['Lead intake automation', '/services/lead-intake-automation'],
+    ['Workflow automation', '/services/workflow-automation'],
+    ['Pathflow MCP', '/platform/mcp'],
+  ],
+  '/platform/mcp': [
+    ['Pathflow Architecture', '/solutions/architecture'],
+    ['Pathflow Handoffs', '/platform/handoffs'],
+    ['Farm Financing Ontario case study', '/work/farm-financing-ontario'],
+  ],
+  '/platform/handoffs': [
+    ['Automation consultant handoff documentation', '/resources/automation-consultant-handoff-documentation'],
+    ['Pathflow Architecture', '/solutions/architecture'],
+    ['Farm Financing Ontario case study', '/work/farm-financing-ontario'],
+  ],
+};
 
 const distDir = path.resolve('dist');
 const indexPath = path.join(distDir, 'index.html');
@@ -55,6 +128,10 @@ function htmlForRoute(route) {
       `<meta property="og:description" content="${escapeAttribute(seo.description)}" />`,
     )
     .replace(
+      /<meta\s+property="og:type"\s+content=".*?"\s*\/?>/s,
+      `<meta property="og:type" content="${escapeAttribute(seo.ogType)}" />`,
+    )
+    .replace(
       /<meta\s+property="og:url"\s+content=".*?"\s*\/?>/s,
       `<meta property="og:url" content="${escapeAttribute(seo.canonicalUrl)}" />`,
     )
@@ -77,6 +154,10 @@ function htmlForRoute(route) {
     .replace(
       /<link\s+rel="canonical"\s+href=".*?"\s*\/?>/s,
       `<link rel="canonical" href="${escapeAttribute(seo.canonicalUrl)}" />`,
+    )
+    .replace(
+      '<div id="root"></div>',
+      `<div id="root"></div>\n    ${staticFallbackForRoute(route)}`,
     )
     .replace(
       '</head>',
@@ -138,11 +219,178 @@ function htmlForNotFound() {
     );
 }
 
+function staticFallbackForRoute(route) {
+  const seo = getSeoForPath(route);
+  const canonicalPath = seo.canonicalPath;
+  const article = publishedResourceArticles.find((item) => item.path === canonicalPath);
+  const caseStudy = caseStudies.find((item) => item.path === canonicalPath);
+  const heading = article?.title || caseStudy?.title || seo.schemaName || seo.title.replace(' | Pathflow', '');
+  const description = article?.description || caseStudy?.description || seo.description;
+  const nav = renderStaticNav();
+  let body = '';
+
+  if (canonicalPath === '/resources') {
+    body = renderResourceIndexFallback();
+  } else if (article) {
+    body = renderResourceArticleFallback(article);
+  } else if (canonicalPath === '/work') {
+    body = renderWorkIndexFallback();
+  } else if (caseStudy) {
+    body = renderCaseStudyFallback(caseStudy);
+  } else if (canonicalPath === '/services') {
+    body = renderRouteLinkList('Services', serviceFallbackLinks);
+  } else {
+    body = renderRouteLinkList('Related Pathflow pages', fallbackLinksForRoute(canonicalPath));
+  }
+
+  return `<noscript>
+      <main class="static-fallback" aria-label="Static page summary">
+        ${nav}
+        <article>
+          <header>
+            ${renderBreadcrumb(canonicalPath, heading)}
+            <h1>${escapeHtml(heading)}</h1>
+            <p>${escapeHtml(description)}</p>
+          </header>
+          ${body}
+        </article>
+      </main>
+    </noscript>`;
+}
+
+function renderStaticNav() {
+  return `<nav aria-label="Static site navigation"><ul>${primaryFallbackLinks
+    .map(([label, href]) => `<li><a href="${escapeAttribute(publicPath(href))}">${escapeHtml(label)}</a></li>`)
+    .join('')}</ul></nav>`;
+}
+
+function renderBreadcrumb(route, currentLabel) {
+  const segments = route.split('/').filter(Boolean);
+  const items = [
+    `<li><a href="/">Pathflow</a></li>`,
+  ];
+
+  if (segments[0]) {
+    const parent = breadcrumbParentForGroup(segments[0]);
+    items.push(`<li><a href="${escapeAttribute(publicPath(parent.path))}">${escapeHtml(parent.name)}</a></li>`);
+  }
+
+  if (segments.length > 1) {
+    items.push(`<li>${escapeHtml(currentLabel)}</li>`);
+  }
+
+  return `<nav aria-label="Breadcrumb"><ol>${items.join('')}</ol></nav>`;
+}
+
+function renderResourceIndexFallback() {
+  return `<section>
+    <h2>All published resources</h2>
+    <ul>${publishedResourceArticles.map(renderResourceListItem).join('')}</ul>
+  </section>`;
+}
+
+function renderResourceArticleFallback(article) {
+  const sections = article.sections
+    .filter((section) => section.type !== 'sources')
+    .map(renderContentSection)
+    .join('');
+  const sources = article.sources?.length
+    ? `<section><h2>Sources</h2><ul>${article.sources.map((source) => `<li><a href="${escapeAttribute(source.href)}">${escapeHtml(source.label)}</a></li>`).join('')}</ul></section>`
+    : '';
+
+  return `<p>${escapeHtml(article.dek || '')}</p>
+    <p>Published ${escapeHtml(article.publishedAt)}${article.updatedAt ? `; updated ${escapeHtml(article.updatedAt)}` : ''}</p>
+    <ul>${(article.tags || []).map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>
+    ${sections}
+    ${sources}`;
+}
+
+function renderWorkIndexFallback() {
+  return `<section>
+    <h2>Published case studies</h2>
+    <ul>${caseStudies.map((caseStudy) => `<li><a href="${escapeAttribute(publicPath(caseStudy.path))}">${escapeHtml(caseStudy.company)}</a><p>${escapeHtml(caseStudy.description)}</p></li>`).join('')}</ul>
+  </section>`;
+}
+
+function renderCaseStudyFallback(caseStudy) {
+  const sections = caseStudy.sections.map(renderContentSection).join('');
+  return `<p>${escapeHtml(caseStudy.description)}</p>${sections}`;
+}
+
+function renderContentSection(section) {
+  const title = section.title ? `<h2>${escapeHtml(section.title)}</h2>` : '';
+  const paragraphs = [
+    ...(section.paragraphs || []),
+    ...(section.paragraphsAfter || []),
+  ]
+    .flat()
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join('');
+  const list = section.list?.length
+    ? `<ul>${section.list.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+  const items = section.items?.length
+    ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+  const questions = section.questions?.length
+    ? `<ul>${section.questions.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+  const relatedLinks = [...(section.relatedLinks || []), section.relatedLink].filter(Boolean);
+  const links = relatedLinks.length
+    ? `<ul>${relatedLinks.map((link) => `<li><a href="${escapeAttribute(publicPath(link.href))}">${escapeHtml(link.label)}</a></li>`).join('')}</ul>`
+    : '';
+  const ctaAvailable = section.cta?.href && section.cta.available !== false;
+  const cta = section.cta
+    ? ctaAvailable
+      ? `<p><a href="${escapeAttribute(publicPath(section.cta.href))}">${escapeHtml(section.cta.label)}</a></p>`
+      : `<p>${escapeHtml(section.cta.label)}: ${escapeHtml(section.cta.status || section.cta.description || 'Not public yet')}</p>`
+    : '';
+
+  return `<section>${title}${paragraphs}${questions}${list}${items}${links}${cta}</section>`;
+}
+
+function renderRouteLinkList(title, links = []) {
+  if (!links.length) return '';
+  return `<section><h2>${escapeHtml(title)}</h2><ul>${links
+    .map(([label, href]) => `<li><a href="${escapeAttribute(publicPath(href))}">${escapeHtml(label)}</a></li>`)
+    .join('')}</ul></section>`;
+}
+
+function fallbackLinksForRoute(route) {
+  if (routeFallbackLinks[route]) return routeFallbackLinks[route];
+  if (route.startsWith('/services/')) {
+    return [
+      ['All services', '/services'],
+      ['Resources', '/resources'],
+      ['Automation consultant handoff documentation', '/resources/automation-consultant-handoff-documentation'],
+    ];
+  }
+  return [
+    ['Resources', '/resources'],
+    ['Services', '/services'],
+    ['Work', '/work'],
+  ];
+}
+
+function renderResourceListItem(article) {
+  return `<li>
+    <a href="${escapeAttribute(publicPath(article.path))}">${escapeHtml(article.title)}</a>
+    <p>${escapeHtml(article.description)}</p>
+    <p>${escapeHtml(article.category)} · ${escapeHtml(article.publishedAt)}</p>
+  </li>`;
+}
+
+function publicPath(route) {
+  if (!route || /^https?:\/\//.test(route) || route.startsWith('mailto:')) return route || '/';
+  const normalized = route.replace(/\/$/, '') || '/';
+  return normalized === '/' ? '/' : `${normalized}/`;
+}
+
 function buildSitemap() {
-  const urls = indexableRoutes
-    .map((route) => {
-      const loc = getPublicUrlForPath(route);
-      return `  <url>\n    <loc>${escapeHtml(loc)}</loc>\n  </url>`;
+  const urls = getSitemapEntries()
+    .map((entry) => {
+      const lastmod = entry.lastmod ? `\n    <lastmod>${escapeHtml(entry.lastmod)}</lastmod>` : '';
+      return `  <url>\n    <loc>${escapeHtml(entry.loc)}</loc>${lastmod}\n  </url>`;
     })
     .join('\n');
 
@@ -166,4 +414,23 @@ function escapeAttribute(value) {
 
 function escapeScriptJson(value) {
   return value.replaceAll('</script', '<\\/script');
+}
+
+function titleCase(value = '') {
+  return value
+    .replace(/[-/]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function breadcrumbParentForGroup(group) {
+  if (group === 'solutions') {
+    return { name: 'Platform', path: '/platform' };
+  }
+
+  return {
+    name: titleCase(group),
+    path: `/${group}`,
+  };
 }

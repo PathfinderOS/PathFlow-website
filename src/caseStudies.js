@@ -7,6 +7,8 @@ export const caseStudies = [
     title: 'A farm financing website built as a complete operating path',
     description:
       'How Farm Financing Ontario went from public brand presence to secure lead intake, CRM delivery, deployment, SEO foundations, and maintainable ongoing content.',
+    publishedAt: '2026-08-21',
+    updatedAt: '2026-08-22',
     navDescription:
       'Website, lead intake, CRM integration, deployment, SEO, and ongoing maintenance.',
     indexDescription:

@@ -379,7 +379,7 @@ const mcpCapabilities = [
     eyebrow: 'Architecture',
     title: 'Make the system map useful to agents too.',
     description:
-      'A Pathflow Architecture diagram is not only documentation for humans. Through MCP, its nodes and edges can become machine-readable project context.',
+      'A Pathflow Architecture diagram can serve humans and agents. Through MCP, its nodes and edges can become machine-readable project context.',
     items: [
       'List saved project architecture diagrams',
       'Retrieve a saved diagram',
@@ -865,6 +865,11 @@ const servicePages = {
           'No. Pathflow commonly works around GoHighLevel, Salesforce, HubSpot, Zoho, and systems with accessible APIs or webhook support.',
       },
     ],
+    relatedResources: [
+      '/resources/highlevel-project-management-crm-client-delivery',
+      '/resources/connect-website-lead-forms-to-crm',
+      '/resources/automation-consultant-handoff-documentation',
+    ],
     adjacent: ['/services/lead-intake-automation', '/services/dashboards-reporting', '/services/workflow-automation'],
   },
   '/services/lead-intake-automation': {
@@ -913,6 +918,11 @@ const servicePages = {
         answer:
           'Yes. Intake can trigger document requests, reminders, and dashboard status so the team does not have to track every step manually.',
       },
+    ],
+    relatedResources: [
+      '/resources/connect-website-lead-forms-to-crm',
+      '/resources/highlevel-project-management-crm-client-delivery',
+      '/resources/automation-consultant-handoff-documentation',
     ],
     adjacent: ['/services/crm-automation', '/services/connected-websites', '/services/workflow-automation'],
   },
@@ -963,6 +973,11 @@ const servicePages = {
           'Yes. Pathflow can audit current Zaps, decide what should move, and rebuild practical workflows in n8n or another better-fit layer.',
       },
     ],
+    relatedResources: [
+      '/resources/github-outage-retry-storm-workflow-design',
+      '/resources/zapier-vs-n8n-client-automation',
+      '/resources/automation-consultant-handoff-documentation',
+    ],
     adjacent: ['/services/n8n-automation', '/services/managed-automation', '/services/crm-automation'],
   },
   '/services/connected-websites': {
@@ -1011,6 +1026,11 @@ const servicePages = {
         answer:
           'No. Many business websites should stay lightweight. Pathflow adds custom backend pieces only when the workflow needs them.',
       },
+    ],
+    relatedResources: [
+      '/resources/connect-website-lead-forms-to-crm',
+      '/resources/secure-client-vps-before-deployment',
+      '/resources/github-self-hosted-runner-brownouts-2026',
     ],
     adjacent: ['/services/lead-intake-automation', '/services/custom-apps', '/services/managed-automation'],
   },
@@ -1061,6 +1081,11 @@ const servicePages = {
           'Yes. These tools are most useful when they connect to the CRM, database, forms, n8n workflows, document systems, or reporting layer already used by the business.',
       },
     ],
+    relatedResources: [
+      '/resources/automation-consultant-handoff-documentation',
+      '/resources/secure-client-vps-before-deployment',
+      '/resources/github-outage-retry-storm-workflow-design',
+    ],
     adjacent: ['/services/workflow-automation', '/services/connected-websites', '/services/dashboards-reporting'],
   },
   '/services/dashboards-reporting': {
@@ -1109,6 +1134,11 @@ const servicePages = {
         answer:
           'Not always. Many useful operational dashboards can start with simpler CRM, spreadsheet, or app-level data connections.',
       },
+    ],
+    relatedResources: [
+      '/resources/automation-consultant-handoff-documentation',
+      '/resources/github-outage-retry-storm-workflow-design',
+      '/resources/connect-website-lead-forms-to-crm',
     ],
     adjacent: ['/services/crm-automation', '/services/lead-intake-automation', '/services/workflow-automation'],
   },
@@ -1159,6 +1189,11 @@ const servicePages = {
           'Yes. Pathflow can work with client-owned accounts or managed infrastructure, as long as ownership and access are documented clearly.',
       },
     ],
+    relatedResources: [
+      '/resources/secure-client-vps-before-deployment',
+      '/resources/your-vps-is-running-xmrig-now-what',
+      '/resources/github-self-hosted-runner-brownouts-2026',
+    ],
     adjacent: ['/services/n8n-automation', '/services/connected-websites', '/services/workflow-automation'],
   },
   '/services/n8n-automation': {
@@ -1207,6 +1242,11 @@ const servicePages = {
         answer:
           'No. Some simple workflows can stay where they are. Pathflow reviews the current setup before recommending a migration.',
       },
+    ],
+    relatedResources: [
+      '/resources/zapier-vs-n8n-client-automation',
+      '/resources/github-outage-retry-storm-workflow-design',
+      '/resources/automation-consultant-handoff-documentation',
     ],
     adjacent: ['/services/workflow-automation', '/services/managed-automation', '/services/crm-automation'],
   },
@@ -1265,7 +1305,7 @@ function applySeo(pathname, isFound) {
   setMeta('name', 'robots', robots);
   setMeta('property', 'og:title', seo.ogTitle || seo.title);
   setMeta('property', 'og:description', seo.description);
-  setMeta('property', 'og:type', 'website');
+  setMeta('property', 'og:type', seo.ogType);
   setMeta('property', 'og:url', seo.canonicalUrl);
   setMeta('property', 'og:image', seo.ogImage);
   setMeta('name', 'twitter:card', 'summary_large_image');
@@ -2418,7 +2458,7 @@ function ArchitectureMovementSection() {
         <p className="eyebrow">Directional relationships</p>
         <h2>Show how the system moves.</h2>
         <p>
-          Relationships are not just lines between boxes. Flow relationships can be directional and labeled, while association relationships can show dependency without pretending data is moving.
+          Relationships carry more meaning than lines between boxes. Flow relationships can be directional and labeled, while association relationships can show dependency without pretending data is moving.
         </p>
         <p>
           In the editor, a selected edge can be labeled, changed between flow and association, reversed when it is a flow, or deleted without deleting either connected node.
@@ -2468,7 +2508,7 @@ function ArchitectureStructureSection() {
     <ArchitectureSection
       eyebrow="Boundaries"
       title="Structure and boundaries."
-      intro="A useful system map should show not only the components, but the context they live inside."
+      intro="A useful system map should show the components and the context they live inside."
     >
       <div className="architecture-boundary-layout">
         <ArchitectureBoundaryStack />
@@ -2477,7 +2517,7 @@ function ArchitectureStructureSection() {
             Architecture supports environment, system, and network boundaries, including VPC and subnet structure. Subnets can be marked public, private, or unspecified when that distinction matters.
           </p>
           <p>
-            The point is not to make an AWS-only diagram. Mixed client systems often include cloud resources, SaaS tools, consultant-managed infrastructure, websites, automation services, and client-owned accounts in the same operational picture.
+            Useful maps handle mixed client systems: cloud resources, SaaS tools, consultant-managed infrastructure, websites, automation services, and client-owned accounts in the same operational picture.
           </p>
         </div>
       </div>
@@ -2891,7 +2931,7 @@ function DocumentsClientIdentitySection() {
     <section className="documents-section documents-split-section">
       <div className="documents-prose documents-prose-left">
         <p className="eyebrow">Client identity</p>
-        <h2>Files need an owner, not just a folder.</h2>
+        <h2>Files need ownership beside storage.</h2>
         <p>
           Exact sender-email matching can resolve a client when the relationship is known. CRM IDs and internal mappings stay authoritative, while folder names remain human-readable presentation.
         </p>
@@ -3470,7 +3510,7 @@ function HandoffArchitectureSection() {
         <p className="eyebrow">Architecture integration</p>
         <h2>Show the system you are handing over.</h2>
         <p>
-          The client should not only receive a list of links. The system map should remain available beside the handoff, so the resources and services behind the delivery can be understood as a connected project.
+          A useful handoff includes the links and the system map, so the resources and services behind the delivery can be understood as a connected project.
         </p>
         <p>
           Pathflow Architecture keeps the visual system map close to the handoff instead of sending the client away to reverse-engineer a diagram file.
@@ -4477,7 +4517,7 @@ function ResourceListingItem({ item, variant = 'guide' }) {
 function ResourceListingImage({ image }) {
   return (
     <figure className="resource-listing-media" aria-label={image.alt}>
-      <img src={image.src} alt={image.alt} loading="lazy" />
+      <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
     </figure>
   );
 }
@@ -4564,7 +4604,7 @@ function ResourceArticleHero({ article }) {
 function ResourceArticleHeroImage({ image }) {
   return (
     <figure className="resource-article-hero-media">
-      <img src={image.src} alt={image.alt} />
+      <img src={image.src} alt={image.alt} width={image.width} height={image.height} fetchpriority="high" decoding="async" />
     </figure>
   );
 }
@@ -4642,7 +4682,7 @@ function ResourceIntroSection({ section }) {
 function ResourceArticleImage({ media }) {
   return (
     <figure className="resource-article-media">
-      <img src={media.src} alt={media.alt} loading={media.loading || 'lazy'} decoding="async" />
+      <img src={media.src} alt={media.alt} width={media.width} height={media.height} loading={media.loading || 'lazy'} decoding="async" />
       {media.caption && <figcaption>{media.caption}</figcaption>}
     </figure>
   );
@@ -5701,6 +5741,11 @@ function ServicePage({ service }) {
           <p className="leading-8 text-white/75">{service.proof}</p>
         </article>
       </Section>
+      {service.relatedResources?.length > 0 && (
+        <Section eyebrow="Related resources" title="Useful guides for this work.">
+          <LinkedResourceGrid paths={service.relatedResources} />
+        </Section>
+      )}
       {service.faqs?.length > 0 && (
         <Section eyebrow="FAQs" title="Useful answers before a consultation.">
           <div className="grid gap-5 lg:grid-cols-2">
@@ -5963,6 +6008,28 @@ function LinkedServiceGrid({ paths }) {
           </a>
         );
       })}
+    </div>
+  );
+}
+
+function LinkedResourceGrid({ paths }) {
+  const resources = paths
+    .map((path) => resourceArticlesByPath[path])
+    .filter(Boolean);
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-3">
+      {resources.map((resource) => (
+        <a className="resource-card card-link group block" href={resource.path} key={resource.path}>
+          <span className="text-sm font-medium text-white/55">{resource.category}</span>
+          <h3 className="mt-5 text-xl font-semibold text-white">{resource.shortTitle || resource.title}</h3>
+          <p className="mt-3 leading-7 text-white/75">{resource.description}</p>
+          <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white/75">
+            Read guide
+            <ArrowRight size={15} className="cta-arrow" />
+          </span>
+        </a>
+      ))}
     </div>
   );
 }
