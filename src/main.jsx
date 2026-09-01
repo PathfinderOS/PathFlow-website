@@ -43,6 +43,7 @@ import {
   resourceNavItems,
   resourceSections,
   resourceTopicItems,
+  resourceTopicsByPath,
   resourceTypeFilters,
 } from './resourceArticles.js';
 import './index.css';
@@ -87,6 +88,33 @@ const solutionNavItems = [
     label: 'Pathflow Handoffs',
     href: '/platform/handoffs',
     description: 'Deliver the project with its context intact.',
+  },
+];
+
+const productItems = [
+  {
+    title: 'Pathflow Architecture',
+    href: '/solutions/architecture',
+    description: 'Map client systems, services, infrastructure, ownership, boundaries, resources, and data flows.',
+    icon: Map,
+  },
+  {
+    title: 'Pathflow Documents',
+    href: '/solutions/documents',
+    description: 'Automate document intake, sender matching, classification, Google Drive filing, and CRM routing.',
+    icon: FileSearch,
+  },
+  {
+    title: 'Pathflow MCP',
+    href: '/platform/mcp',
+    description: 'Give AI agents structured project context across clients, requests, resources, deployments, and handoffs.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Pathflow Handoffs',
+    href: '/platform/handoffs',
+    description: 'Deliver client work with the architecture, resources, instructions, and operating context intact.',
+    icon: FileCheck2,
   },
 ];
 
@@ -1272,8 +1300,9 @@ function App() {
   const service = servicePages[canonicalPath];
   const caseStudy = caseStudiesByPath[canonicalPath];
   const resourceArticle = resourceArticlesByPath[canonicalPath];
+  const resourceTopic = resourceTopicsByPath[canonicalPath];
   const Page = pageComponents[canonicalPath];
-  const isFound = Boolean(Page || service || caseStudy || resourceArticle);
+  const isFound = Boolean(Page || service || caseStudy || resourceArticle || resourceTopic);
 
   React.useEffect(() => {
     applySeo(pathname, isFound);
@@ -1286,6 +1315,7 @@ function App() {
         {service && <ServicePage service={service} />}
         {!service && caseStudy && <CaseStudyPage caseStudy={caseStudy} />}
         {!service && !caseStudy && resourceArticle && <ResourceArticlePage article={resourceArticle} />}
+        {!service && !caseStudy && !resourceArticle && resourceTopic && <ResourcesPage routeTopic={resourceTopic} />}
         {!service && !caseStudy && !resourceArticle && Page && <Page />}
         {!isFound && <NotFoundPage />}
       </main>
@@ -1374,6 +1404,9 @@ function Header({ canonicalPath }) {
           <NavDropdown label="Services" items={serviceNavItems} active={servicesAreActive} canonicalPath={canonicalPath} />
           <NavDropdown label="Work" items={caseStudyNavItems} active={workIsActive} canonicalPath={canonicalPath} />
           <NavDropdown label="Resources" items={resourceNavItems} active={resourcesAreActive} canonicalPath={canonicalPath} />
+          <a className={`nav-link ${canonicalPath === '/products' ? 'nav-link-active' : ''}`} href="/products">
+            Products
+          </a>
           <a className="nav-link" href="/#care">
             Care
           </a>
@@ -1491,6 +1524,9 @@ function MobileNavigation({ canonicalPath }) {
         <MobileNavGroup label="Services" items={serviceNavItems} canonicalPath={canonicalPath} />
         <MobileNavGroup label="Work" items={caseStudyNavItems} canonicalPath={canonicalPath} />
         <MobileNavGroup label="Resources" items={resourceNavItems} canonicalPath={canonicalPath} />
+        <a className={`mobile-nav-link ${canonicalPath === '/products' ? 'mobile-nav-link-active' : ''}`} href="/products">
+          Products
+        </a>
         <a className="mobile-nav-link" href="/#care">Care</a>
         <a className="mobile-nav-link sm:hidden" href={platformLink}>Log in</a>
       </div>
@@ -2165,6 +2201,52 @@ function PlatformPage() {
           <CardGrid items={platformAreas} />
           <PlatformPreview />
         </div>
+      </Section>
+      <FinalCtaSection />
+    </>
+  );
+}
+
+function ProductsPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Products"
+        title="Products for client systems that need to stay understandable."
+        intro="Pathflow products help consultants and operators map architecture, automate document intake, expose project context to agents, and hand off work with the operating record intact."
+        primaryCta="Book a consultation"
+        secondaryCta="Read resources"
+        secondaryHref="/resources"
+      />
+      <Section
+        eyebrow="Product family"
+        title="Architecture, documents, agents, and handoff context in one connected operating layer."
+        intro="Each product can stand on its own, but the strongest use case is the full path: understand the system, move the documents, give agents context, and leave clients with a durable handoff."
+      >
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {productItems.map(({ title, href, description, icon: Icon }) => (
+            <a className="service-card card-link group block" href={href} key={title}>
+              <Icon size={22} className="text-white/70" />
+              <h3 className="mt-5 text-xl font-semibold text-white">{title}</h3>
+              <p className="mt-3 leading-7 text-white/75">{description}</p>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white/75">
+                View product
+                <ArrowRight size={15} className="cta-arrow" />
+              </span>
+            </a>
+          ))}
+        </div>
+      </Section>
+      <Section
+        eyebrow="Resource coverage"
+        title="Search-focused resources around the systems Pathflow works with."
+        intro="Pathflow resources connect product pages to practical searches around HighLevel, GitHub Actions, n8n, CRM delivery, automation reliability, and infrastructure handoff."
+      >
+        <LinkedResourceGrid paths={[
+          '/resources/highlevel-project-management-crm-client-delivery',
+          '/resources/github-self-hosted-runner-brownouts-2026',
+          '/resources/github-outage-retry-storm-workflow-design',
+        ]} />
       </Section>
       <FinalCtaSection />
     </>
@@ -4291,8 +4373,8 @@ function McpClosingSection() {
   );
 }
 
-function ResourcesPage() {
-  const [filters, setFilters] = React.useState(() => getResourceFilterState());
+function ResourcesPage({ routeTopic }) {
+  const [filters, setFilters] = React.useState(() => getResourceFilterState({ fallbackTopic: routeTopic?.slug }));
   const selectedTopic = filters.topic;
   const selectedType = filters.type;
   const selectedTopicItem = resourceTopicItems.find((topic) => topic.slug === selectedTopic);
@@ -4300,8 +4382,10 @@ function ResourcesPage() {
   const topicFilter = selectedTopicItem ? selectedTopicItem.slug : '';
   const typeFilter = selectedTypeFilter ? selectedTypeFilter.value : '';
   const hasFilter = Boolean(topicFilter || typeFilter);
+  const isTopicPage = Boolean(selectedTopicItem && resourceTopicSlugFromPath(window.location.pathname) === selectedTopicItem.slug);
+  const topicMatchedPaths = new Set(selectedTopicItem?.items.map((item) => item.path) || []);
   const filteredResources = resourceIndexItems.filter((resource) => {
-    const topicMatches = topicFilter ? resource.topicSlugs.includes(topicFilter) : true;
+    const topicMatches = topicFilter ? topicMatchedPaths.has(resource.path) : true;
     const typeMatches = typeFilter ? resource.type === typeFilter : true;
 
     return topicMatches && typeMatches;
@@ -4334,7 +4418,7 @@ function ResourcesPage() {
       window.history.pushState({}, '', nextPath);
     }
 
-    setFilters(getResourceFilterState(nextUrl.search));
+    setFilters(getResourceFilterState({ pathname: nextUrl.pathname, search: nextUrl.search }));
   }
 
   return (
@@ -4343,18 +4427,22 @@ function ResourcesPage() {
         <div className="case-study-hero-field" aria-hidden="true" />
         <div className="mx-auto max-w-7xl px-5 pb-20 sm:px-6 lg:px-8 lg:pb-24">
           <div className="max-w-4xl">
-            <p className="eyebrow mb-6">Resources</p>
+            <p className="eyebrow mb-6">{isTopicPage ? 'Resources / Topic' : 'Resources'}</p>
             <h1 className="max-w-5xl text-5xl font-semibold leading-[1.04] tracking-normal text-white sm:text-6xl lg:text-7xl">
-              Practical notes for building, delivering and operating client systems.
+              {isTopicPage
+                ? `${selectedTopicItem.label} resources for connected systems.`
+                : 'Practical notes for building, delivering and operating client systems.'}
             </h1>
             <p className="mt-8 max-w-3xl text-lg leading-8 text-white/75 sm:text-xl sm:leading-9">
-              Guides, architecture patterns and field notes for consultants and technical teams working across infrastructure, automation, delivery and operations.
+              {isTopicPage
+                ? selectedTopicItem.description
+                : 'Guides, architecture patterns and field notes for consultants and technical teams working across infrastructure, automation, delivery and operations.'}
             </p>
           </div>
         </div>
       </section>
 
-      <section className="resource-hub-section resource-latest-section">
+      {!isTopicPage && <section className="resource-hub-section resource-latest-section">
         <div className="resource-hub-wrap">
           <ResourceHubHeader
             eyebrow="Latest"
@@ -4367,9 +4455,9 @@ function ResourcesPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
-      {guidesSection && (
+      {!isTopicPage && guidesSection && (
         <section className="resource-hub-section resource-guides-section">
           <div className="resource-hub-wrap">
             <ResourceHubHeader eyebrow="Guides" title="Guides" description={guidesSection.description} />
@@ -4382,7 +4470,7 @@ function ResourcesPage() {
         </section>
       )}
 
-      {secondarySections.map((section) => (
+      {!isTopicPage && secondarySections.map((section) => (
         <section className={`resource-hub-section resource-${section.type}-section`} key={section.type}>
           <div className="resource-hub-wrap">
             <ResourceHubHeader eyebrow={section.typeLabel} title={section.title} description={section.description} />
@@ -4399,8 +4487,8 @@ function ResourcesPage() {
         <div className="resource-hub-wrap">
           <ResourceHubHeader
             eyebrow="Browse"
-            title="Browse by topic"
-            description="Filter the field manual by the area of the system you are working on."
+            title={isTopicPage ? `Browse ${selectedTopicItem.label} resources` : 'Browse by topic'}
+            description={isTopicPage ? selectedTopicItem.description : 'Filter the field manual by the area of the system you are working on.'}
           />
           <div className="resource-filter-panel" aria-label="Resource filters">
             <div>
@@ -4473,13 +4561,24 @@ function ResourcesPage() {
   );
 }
 
-function getResourceFilterState(search = window.location.search) {
+function getResourceFilterState({
+  pathname = window.location.pathname,
+  search = window.location.search,
+  fallbackTopic = '',
+} = {}) {
   const searchParams = new URLSearchParams(search);
 
   return {
-    topic: searchParams.get('topic') || '',
+    topic: resourceTopicSlugFromPath(pathname) || fallbackTopic || searchParams.get('topic') || '',
     type: searchParams.get('type') || '',
   };
+}
+
+function resourceTopicSlugFromPath(pathname = '') {
+  const normalizedPath = pathname.replace(/\/$/, '');
+  const match = normalizedPath.match(/^\/resources\/topics\/([^/]+)$/);
+
+  return match ? decodeURIComponent(match[1]) : '';
 }
 
 function ResourceHubHeader({ eyebrow, title, description }) {
@@ -4545,11 +4644,13 @@ function ResourceTopicChips({ topics }) {
 
 function resourceFilterHref({ topic = '', type = '' }) {
   const params = new URLSearchParams();
-  if (topic) params.set('topic', topic);
+  const topicItem = topic ? resourceTopicItems.find((item) => item.slug === topic) : null;
+  const basePath = topicItem ? topicItem.path : '/resources';
+  if (topic && !topicItem) params.set('topic', topic);
   if (type) params.set('type', type);
   const query = params.toString();
 
-  return query ? `/resources?${query}` : '/resources';
+  return query ? `${basePath}?${query}` : basePath;
 }
 
 function formatResourceDate(value) {
@@ -6055,6 +6156,7 @@ function Footer() {
         <a href="/businesses" className="nav-link">Businesses</a>
         <a href="/consultants" className="nav-link">Consultants</a>
         <a href="/services" className="nav-link">Services</a>
+        <a href="/products" className="nav-link">Products</a>
         <a href="/work" className="nav-link">Work</a>
         <a href="/platform" className="nav-link">Platform</a>
         <a href="/solutions/architecture" className="nav-link">Architecture</a>
@@ -6075,6 +6177,7 @@ const pageComponents = {
   '/services': ServicesLandingPage,
   '/work': WorkIndexPage,
   '/platform': PlatformPage,
+  '/products': ProductsPage,
   '/solutions/architecture': PlatformArchitecturePage,
   '/solutions/documents': PathflowDocumentsPage,
   '/platform/mcp': PathflowMcpPage,

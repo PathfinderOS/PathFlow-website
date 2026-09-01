@@ -3,6 +3,10 @@
 /services/app-integrations /services/workflow-automation 301
 /services/dashboards /services/dashboards-reporting 301
 /services/managed-hosting /services/managed-automation 301
+/products/architecture /solutions/architecture 301
+/products/documents /solutions/documents 301
+/products/mcp /platform/mcp 301
+/products/handoffs /platform/handoffs 301
 /platform/architecture /solutions/architecture 301
 /solutions/handoffs /platform/handoffs 301
 /* /index.html 200

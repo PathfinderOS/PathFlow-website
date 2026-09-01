@@ -9,13 +9,14 @@ import {
   siteUrl,
 } from '../src/seo.js';
 import { caseStudies } from '../src/caseStudies.js';
-import { publishedResourceArticles } from '../src/resourceArticles.js';
+import { publishedResourceArticles, resourceTopicItems } from '../src/resourceArticles.js';
 
 const primaryFallbackLinks = [
   ['Home', '/'],
   ['Businesses', '/businesses'],
   ['Consultants', '/consultants'],
   ['Services', '/services'],
+  ['Products', '/products'],
   ['Platform', '/platform'],
   ['Architecture', '/solutions/architecture'],
   ['Documents', '/solutions/documents'],
@@ -55,10 +56,17 @@ const routeFallbackLinks = {
     ['Resources', '/resources'],
   ],
   '/platform': [
+    ['All Pathflow products', '/products'],
     ['Pathflow Architecture', '/solutions/architecture'],
     ['Pathflow Documents', '/solutions/documents'],
     ['Pathflow Handoffs', '/platform/handoffs'],
     ['Pathflow MCP', '/platform/mcp'],
+  ],
+  '/products': [
+    ['Pathflow Architecture', '/solutions/architecture'],
+    ['Pathflow Documents', '/solutions/documents'],
+    ['Pathflow MCP', '/platform/mcp'],
+    ['Pathflow Handoffs', '/platform/handoffs'],
   ],
   '/solutions/architecture': [
     ['Automation consultant handoff documentation', '/resources/automation-consultant-handoff-documentation'],
@@ -103,6 +111,7 @@ await Promise.all(
 );
 
 await writeFile(path.join(distDir, 'sitemap.xml'), buildSitemap());
+await writeFile(path.join(distDir, 'feed.xml'), buildResourceFeed());
 await writeFile(path.join(distDir, 'robots.txt'), buildRobots());
 
 function htmlForRoute(route) {
@@ -223,9 +232,10 @@ function staticFallbackForRoute(route) {
   const seo = getSeoForPath(route);
   const canonicalPath = seo.canonicalPath;
   const article = publishedResourceArticles.find((item) => item.path === canonicalPath);
+  const resourceTopic = resourceTopicItems.find((item) => item.path === canonicalPath);
   const caseStudy = caseStudies.find((item) => item.path === canonicalPath);
-  const heading = article?.title || caseStudy?.title || seo.schemaName || seo.title.replace(' | Pathflow', '');
-  const description = article?.description || caseStudy?.description || seo.description;
+  const heading = article?.title || resourceTopic?.label || caseStudy?.title || seo.schemaName || seo.title.replace(' | Pathflow', '');
+  const description = article?.description || resourceTopic?.description || caseStudy?.description || seo.description;
   const nav = renderStaticNav();
   let body = '';
 
@@ -233,6 +243,8 @@ function staticFallbackForRoute(route) {
     body = renderResourceIndexFallback();
   } else if (article) {
     body = renderResourceArticleFallback(article);
+  } else if (resourceTopic) {
+    body = renderResourceTopicFallback(resourceTopic);
   } else if (canonicalPath === '/work') {
     body = renderWorkIndexFallback();
   } else if (caseStudy) {
@@ -286,6 +298,16 @@ function renderResourceIndexFallback() {
   return `<section>
     <h2>All published resources</h2>
     <ul>${publishedResourceArticles.map(renderResourceListItem).join('')}</ul>
+    <h2>Resource topics</h2>
+    <ul>${resourceTopicItems.map((topic) => `<li><a href="${escapeAttribute(publicPath(topic.path))}">${escapeHtml(topic.label)}</a> (${escapeHtml(topic.count)})</li>`).join('')}</ul>
+  </section>`;
+}
+
+function renderResourceTopicFallback(topic) {
+  return `<section>
+    <h2>${escapeHtml(topic.label)} resources</h2>
+    <p>${escapeHtml(topic.description)}</p>
+    <ul>${topic.items.map(renderResourceListItem).join('')}</ul>
   </section>`;
 }
 
@@ -395,6 +417,47 @@ function buildSitemap() {
     .join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+}
+
+function buildResourceFeed() {
+  const articles = publishedResourceArticles.slice(0, 25);
+  const lastBuildDate = new Date(
+    Math.max(
+      ...articles.map((article) => new Date(`${article.updatedAt || article.modifiedAt || article.publishedAt}T00:00:00Z`).getTime()),
+    ),
+  ).toUTCString();
+  const items = articles
+    .map((article) => {
+      const url = `${siteUrl}${publicPath(article.path)}`;
+      const pubDate = new Date(`${article.publishedAt}T00:00:00Z`).toUTCString();
+      const categories = [...new Set([article.category, ...(article.topics || []), ...(article.tags || [])])]
+        .filter(Boolean)
+        .map((category) => `<category>${escapeHtml(category)}</category>`)
+        .join('');
+
+      return `    <item>
+      <title>${escapeHtml(article.title)}</title>
+      <link>${escapeHtml(url)}</link>
+      <guid isPermaLink="true">${escapeHtml(url)}</guid>
+      <description>${escapeHtml(article.description || article.dek || '')}</description>
+      <pubDate>${escapeHtml(pubDate)}</pubDate>
+      ${categories}
+    </item>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Pathflow Resources</title>
+    <link>${siteUrl}/resources/</link>
+    <description>Guides and field notes for connected systems, automation, infrastructure, and client delivery.</description>
+    <language>en</language>
+    <lastBuildDate>${escapeHtml(lastBuildDate)}</lastBuildDate>
+${items}
+  </channel>
+</rss>
+`;
 }
 
 function buildRobots() {

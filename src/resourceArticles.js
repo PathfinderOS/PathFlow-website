@@ -15,7 +15,7 @@ export const resourceArticles = [
     dek:
       'HighLevel is expanding from customer records into delivery operations. The practical boundary is which work benefits from living beside the CRM record and which context needs a broader operational home.',
     readingTime: '12 min read',
-    tags: ['HighLevel', 'GoHighLevel project management', 'CRM', 'Client delivery', 'AI usage limits'],
+    tags: ['HighLevel', 'GoHighLevel', 'GHL', 'GoHighLevel project management', 'CRM', 'Client delivery', 'AI usage limits'],
     image: {
       src: '/resources/ghl-pm.png',
       alt: 'HighLevel project management workspace showing CRM-linked delivery work in a structured project view.',
@@ -5141,6 +5141,13 @@ export const resourceTypeDescriptions = {
 
 const resourceTypeOrder = ['guide', 'pattern', 'field-note'];
 const preferredTopicOrder = [
+  'HighLevel',
+  'GoHighLevel',
+  'GHL',
+  'GitHub',
+  'GitHub Actions',
+  'Self-hosted runners',
+  'n8n',
   'Infrastructure',
   'Automation',
   'Security',
@@ -5152,6 +5159,35 @@ const preferredTopicOrder = [
   'CRM',
   'Operations',
 ];
+
+const searchTopicLabels = [
+  'GoHighLevel project management',
+  'AI usage limits',
+  'CRM automation',
+  'Workflow automation',
+  'Lead intake',
+  'Client delivery',
+  'Deployment infrastructure',
+  'CI/CD',
+  'Reliability',
+];
+
+const resourceTopicDescriptions = {
+  HighLevel:
+    'Guides and field notes for HighLevel, GoHighLevel, CRM-linked delivery work, automation boundaries, and operational handoff.',
+  GoHighLevel:
+    'Guides and field notes for GoHighLevel, HighLevel, CRM project management, client delivery, and automation context.',
+  GHL:
+    'Guides and field notes for GHL and HighLevel CRM workflows, delivery operations, and system handoff decisions.',
+  GitHub:
+    'Guides and field notes for GitHub Actions, deployment infrastructure, outages, runners, retries, and operational reliability.',
+  'GitHub Actions':
+    'Guides and field notes for GitHub Actions workflows, self-hosted runners, deployment reliability, and automation failure modes.',
+  'Self-hosted runners':
+    'Guides and field notes for self-hosted runner maintenance, CI/CD continuity, deployment brownouts, and infrastructure ownership.',
+  n8n:
+    'Guides and field notes for n8n workflow design, Zapier migration, retry behavior, APIs, webhooks, and managed automation.',
+};
 
 function topicSlug(topic) {
   return topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -5236,21 +5272,38 @@ export const resourceTypeFilters = [
     .filter((filter) => filter.count > 0),
 ];
 
-export const resourceTopicItems = Object.values(
-  resourceIndexItems.reduce((topics, article) => {
-    article.topics.forEach((topic) => {
-      const slug = topicSlug(topic);
-      topics[slug] ||= {
-        label: topic,
-        slug,
-        href: `/resources?topic=${encodeURIComponent(slug)}`,
-        count: 0,
-      };
-      topics[slug].count += 1;
-    });
-    return topics;
-  }, {}),
-).sort((a, b) => {
+const resourceTopicLabels = [
+  ...new Set([
+    ...preferredTopicOrder,
+    ...searchTopicLabels,
+    ...resourceIndexItems.flatMap((article) => article.topics),
+  ]),
+];
+
+export const resourceTopicItems = resourceTopicLabels
+  .map((label) => {
+    const slug = topicSlug(label);
+    const items = resourceIndexItems.filter((article) => resourceMatchesTopic(article, label));
+    const lastmod = items.reduce((latest, article) => {
+      const modifiedAt = article.updatedAt || article.modifiedAt || article.publishedAt;
+      return latest && new Date(latest) > new Date(modifiedAt) ? latest : modifiedAt;
+    }, '');
+
+    return {
+      label,
+      slug,
+      path: `/resources/topics/${slug}`,
+      href: `/resources/topics/${slug}`,
+      count: items.length,
+      items,
+      lastmod,
+      description:
+        resourceTopicDescriptions[label] ||
+        `Pathflow resources about ${label.toLowerCase()}, connected systems, automation, infrastructure, and client delivery operations.`,
+    };
+  })
+  .filter((topic) => topic.count > 0)
+  .sort((a, b) => {
   const aIndex = preferredTopicOrder.indexOf(a.label);
   const bIndex = preferredTopicOrder.indexOf(b.label);
   if (aIndex !== -1 || bIndex !== -1) {
@@ -5258,3 +5311,40 @@ export const resourceTopicItems = Object.values(
   }
   return a.label.localeCompare(b.label);
 });
+
+export const resourceTopicsByPath = Object.fromEntries(
+  resourceTopicItems.map((topic) => [topic.path, topic]),
+);
+
+export function resourceMatchesTopic(article, topic) {
+  const slug = topicSlug(topic);
+  const exactValues = [
+    article.category,
+    ...(article.topics || []),
+    ...(article.tags || []),
+  ];
+  const exactMatch = exactValues.some((value) => topicSlug(value) === slug);
+  if (exactMatch) return true;
+
+  const searchText = [
+    article.title,
+    article.shortTitle,
+    article.description,
+    article.dek,
+    ...(article.tags || []),
+    ...(article.topics || []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (slug === 'github') return searchText.includes('github');
+  if (slug === 'gohighlevel') return searchText.includes('gohighlevel') || searchText.includes('highlevel') || searchText.includes('ghl');
+  if (slug === 'ghl') return searchText.includes('ghl') || searchText.includes('highlevel') || searchText.includes('gohighlevel');
+  if (slug === 'n8n') return searchText.includes('n8n');
+  if (slug === 'crm-automation') return searchText.includes('crm') && searchText.includes('automation');
+  if (slug === 'workflow-automation') return searchText.includes('workflow') && searchText.includes('automation');
+  if (slug === 'lead-intake') return searchText.includes('lead') && searchText.includes('intake');
+
+  return false;
+}

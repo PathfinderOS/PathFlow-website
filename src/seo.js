@@ -1,5 +1,5 @@
 import { caseStudies } from './caseStudies.js';
-import { resourceArticles } from './resourceArticles.js';
+import { resourceArticles, resourceTopicItems } from './resourceArticles.js';
 
 export const siteUrl = 'https://getpathflow.com';
 export const defaultOgImage = `${siteUrl}/assets/logo.png`;
@@ -10,9 +10,38 @@ export const legacyRouteMap = {
   '/services/app-integrations': '/services/workflow-automation',
   '/services/dashboards': '/services/dashboards-reporting',
   '/services/managed-hosting': '/services/managed-automation',
+  '/products/architecture': '/solutions/architecture',
+  '/products/documents': '/solutions/documents',
+  '/products/mcp': '/platform/mcp',
+  '/products/handoffs': '/platform/handoffs',
   '/platform/architecture': '/solutions/architecture',
   '/solutions/handoffs': '/platform/handoffs',
 };
+
+const productLastmod = '2026-08-31';
+
+const productCollectionItems = [
+  {
+    name: 'Pathflow Architecture',
+    url: '/solutions/architecture',
+    description: 'Map systems, services, boundaries, resources, and data flows.',
+  },
+  {
+    name: 'Pathflow Documents',
+    url: '/solutions/documents',
+    description: 'Automate client document intake, matching, classification, and filing.',
+  },
+  {
+    name: 'Pathflow MCP',
+    url: '/platform/mcp',
+    description: 'Give agents structured access to the current context behind client work.',
+  },
+  {
+    name: 'Pathflow Handoffs',
+    url: '/platform/handoffs',
+    description: 'Deliver projects with architecture, resources, instructions, and client context intact.',
+  },
+];
 
 const caseStudySeo = Object.fromEntries(
   caseStudies.map((caseStudy) => [
@@ -48,7 +77,7 @@ const resourceArticleSeo = Object.fromEntries(
           ogTitle: article.seo.ogTitle,
           ogImage: toAbsolutePublicUrl(article.seo.ogImage || article.image?.src),
           schemaImage: articleImage,
-          schemaType: 'Article',
+          schemaType: 'BlogPosting',
           schemaName: article.title,
           datePublished: article.publishedAt,
           dateModified: modifiedDate,
@@ -58,6 +87,25 @@ const resourceArticleSeo = Object.fromEntries(
         },
       ];
     }),
+);
+
+const resourceTopicSeo = Object.fromEntries(
+  resourceTopicItems.map((topic) => [
+    topic.path,
+    {
+      title: `${topic.label} Resources | Pathflow`,
+      description: topic.description,
+      schemaType: 'CollectionPage',
+      schemaName: `${topic.label} resources`,
+      lastmod: topic.lastmod,
+      keywords: [topic.label, ...new Set(topic.items.flatMap((article) => [...(article.tags || []), ...(article.topics || [])]))],
+      collectionItems: topic.items.map((article) => ({
+        name: article.title,
+        url: article.path,
+        description: article.description,
+      })),
+    },
+  ]),
 );
 
 export const routeSeo = {
@@ -92,12 +140,24 @@ export const routeSeo = {
     description:
       'Pathflow platform keeps architecture, resources, project handoff, and client requests connected to the systems being built and managed.',
     schemaName: 'Pathflow Platform',
+    lastmod: productLastmod,
+  },
+  '/products': {
+    title: 'Pathflow Products | Architecture, Documents, MCP and Handoffs',
+    description:
+      'Explore Pathflow products for client-system architecture, document intake automation, AI-agent project context, and structured project handoff.',
+    schemaType: 'CollectionPage',
+    schemaName: 'Pathflow products',
+    lastmod: productLastmod,
+    keywords: ['Pathflow Architecture', 'Pathflow Documents', 'Pathflow MCP', 'Pathflow Handoffs', 'client systems'],
+    collectionItems: productCollectionItems,
   },
   '/solutions/architecture': {
     title: 'Pathflow Architecture | Map Client Systems Clearly',
     description:
       'Map the applications, infrastructure, services and dependencies behind client projects with living architecture diagrams connected to Pathflow.',
     schemaName: 'Pathflow Architecture',
+    lastmod: productLastmod,
   },
   '/solutions/documents': {
     title: 'Pathflow Documents | Client Document Automation',
@@ -105,18 +165,21 @@ export const routeSeo = {
       'Automate client document intake, classification, organization, and routing. Connect Gmail, Google Drive, CRM workflows, or use the Pathflow Documents API from n8n and custom applications.',
     schemaType: 'SoftwareApplication',
     schemaName: 'Pathflow Documents',
+    lastmod: productLastmod,
   },
   '/platform/mcp': {
     title: 'Pathflow MCP | Project Context for AI Agents',
     description:
       'Give AI agents structured access to Pathflow projects, requests, tasks, resources, architecture, deployment state and client handoffs.',
     schemaName: 'Pathflow MCP',
+    lastmod: productLastmod,
   },
   '/platform/handoffs': {
     title: 'Pathflow Handoffs | Deliver Client Projects With Context',
     description:
       'Turn completed consulting work into client handoffs that keep architecture, resources, instructions, access context, project history and future requests connected.',
     schemaName: 'Pathflow Handoffs',
+    lastmod: productLastmod,
   },
   '/resources': {
     title: 'Pathflow Resources | Guides for Client Systems, Automation and Infrastructure',
@@ -124,7 +187,9 @@ export const routeSeo = {
       'Practical guides, architecture patterns and field notes for building, delivering and operating client systems across automation, infrastructure, security and DevOps.',
     schemaType: 'CollectionPage',
     schemaName: 'Pathflow Resources',
+    lastmod: '2026-08-25',
   },
+  ...resourceTopicSeo,
   ...resourceArticleSeo,
   '/work': {
     title: 'Work & Case Studies | Pathflow',
@@ -229,7 +294,7 @@ export function getSeoForPath(pathname = '/') {
     canonicalPath,
     canonicalUrl: getPublicUrlForPath(canonicalPath),
     ogImage: route.ogImage || defaultOgImage,
-    ogType: route.ogType || (route.schemaType === 'Article' ? 'article' : 'website'),
+    ogType: route.ogType || (isArticleSchemaType(route.schemaType) ? 'article' : 'website'),
     dateModified: route.dateModified || route.lastmod,
     robots: normalized === canonicalPath ? 'index,follow' : 'noindex,follow',
   };
@@ -275,6 +340,20 @@ export function jsonLdForPath(pathname = '/') {
     description: seo.description,
     url: seo.canonicalUrl,
     publisher: organization,
+    ...(seo.collectionItems?.length
+      ? {
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: seo.collectionItems.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              description: item.description,
+              url: toAbsolutePublicUrl(item.url),
+            })),
+          },
+        }
+      : {}),
   };
 
   const breadcrumbItems = [
@@ -312,10 +391,10 @@ export function jsonLdForPath(pathname = '/') {
     itemListElement: breadcrumbItems,
   };
 
-  if (seo.schemaType === 'Article') {
+  if (isArticleSchemaType(seo.schemaType)) {
     const article = {
       '@context': 'https://schema.org',
-      '@type': 'Article',
+      '@type': seo.schemaType,
       headline: seo.schemaName || seo.title.replace(' | Pathflow', ''),
       description: seo.description,
       url: seo.canonicalUrl,
@@ -371,6 +450,10 @@ function normalizeDate(value) {
   if (!value) return undefined;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
   return value;
+}
+
+function isArticleSchemaType(value) {
+  return value === 'Article' || value === 'BlogPosting';
 }
 
 function titleCase(value = '') {
