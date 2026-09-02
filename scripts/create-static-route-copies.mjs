@@ -79,6 +79,7 @@ const routeFallbackLinks = {
     ['Pathflow MCP', '/platform/mcp'],
   ],
   '/platform/mcp': [
+    ['CVE-2026-79748 and MCP registry risk', '/resources/cve-2026-79748-mcp-registry-remote-shell'],
     ['Pathflow Architecture', '/solutions/architecture'],
     ['Pathflow Handoffs', '/platform/handoffs'],
     ['Farm Financing Ontario case study', '/work/farm-financing-ontario'],
@@ -341,22 +342,6 @@ function renderCaseStudyFallback(caseStudy) {
 
 function renderContentSection(section) {
   const title = section.title ? `<h2>${escapeHtml(section.title)}</h2>` : '';
-  const paragraphs = [
-    ...(section.paragraphs || []),
-    ...(section.paragraphsAfter || []),
-  ]
-    .flat()
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
-    .join('');
-  const list = section.list?.length
-    ? `<ul>${section.list.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-    : '';
-  const items = section.items?.length
-    ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-    : '';
-  const questions = section.questions?.length
-    ? `<ul>${section.questions.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-    : '';
   const relatedLinks = [...(section.relatedLinks || []), section.relatedLink].filter(Boolean);
   const links = relatedLinks.length
     ? `<ul>${relatedLinks.map((link) => `<li><a href="${escapeAttribute(publicPath(link.href))}">${escapeHtml(link.label)}</a></li>`).join('')}</ul>`
@@ -368,7 +353,75 @@ function renderContentSection(section) {
       : `<p>${escapeHtml(section.cta.label)}: ${escapeHtml(section.cta.status || section.cta.description || 'Not public yet')}</p>`
     : '';
 
-  return `<section>${title}${paragraphs}${questions}${list}${items}${links}${cta}</section>`;
+  if (section.blocks?.length) {
+    return `<section>${title}${section.blocks.map(renderContentBlock).join('')}${links}${cta}</section>`;
+  }
+
+  const paragraphs = (section.paragraphs || [])
+    .map((paragraph) => `<p>${renderRichText(paragraph)}</p>`)
+    .join('');
+  const paragraphsAfter = (section.paragraphsAfter || [])
+    .map((paragraph) => `<p>${renderRichText(paragraph)}</p>`)
+    .join('');
+  const listTitle = section.listTitle ? `<p>${escapeHtml(section.listTitle)}</p>` : '';
+  const list = section.list?.length
+    ? `${listTitle}<ul>${section.list.map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ul>`
+    : '';
+  const items = section.items?.length
+    ? `<ul>${section.items.map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ul>`
+    : '';
+  const questions = section.questions?.length
+    ? `<ul>${section.questions.map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ul>`
+    : '';
+  const codeBlocks = section.codeBlocks?.length
+    ? section.codeBlocks
+        .map((block) => `<figure>${block.label ? `<figcaption>${escapeHtml(block.label)}</figcaption>` : ''}<pre><code>${escapeHtml(block.code)}</code></pre></figure>`)
+        .join('')
+    : '';
+  const records = section.records?.length
+    ? section.records
+        .map((record) => `<section><h3>${escapeHtml(record.title)}</h3><dl>${record.fields
+          .map((field) => `<dt>${escapeHtml(field.label)}</dt><dd>${renderRichText(field.value)}</dd>`)
+          .join('')}</dl></section>`)
+        .join('')
+    : '';
+  const examples = section.examples?.length
+    ? section.examples
+        .map((example) => `<section>${example.label ? `<p>${escapeHtml(example.label)}</p>` : ''}<h3>${escapeHtml(example.title || 'Example')}</h3>${example.description ? `<p>${renderRichText(example.description)}</p>` : ''}${example.items?.length ? `<ol>${example.items.map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ol>` : ''}</section>`)
+        .join('')
+    : '';
+  const groups = section.groups?.length
+    ? section.groups
+        .map((group) => `<section><h3>${escapeHtml(group.title)}</h3><ul>${group.items.map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ul></section>`)
+        .join('')
+    : '';
+  const closing = section.closing ? `<p>${renderRichText(section.closing)}</p>` : '';
+  const emphasis = section.emphasis ? `<p>${renderRichText(section.emphasis)}</p>` : '';
+  const middleParagraphs = section.type === 'checklist' ? paragraphsAfter : '';
+  const trailingParagraphs = section.type === 'checklist' ? '' : paragraphsAfter;
+
+  return `<section>${title}${paragraphs}${questions}${codeBlocks}${middleParagraphs}${list}${items}${groups}${records}${examples}${trailingParagraphs}${emphasis}${closing}${links}${cta}</section>`;
+}
+
+function renderContentBlock(block) {
+  if (block.type === 'paragraphs') {
+    return (block.paragraphs || [])
+      .map((paragraph) => `<p>${renderRichText(paragraph)}</p>`)
+      .join('');
+  }
+
+  if (block.type === 'code') {
+    return (block.blocks || [])
+      .map((item) => `<figure>${item.label ? `<figcaption>${escapeHtml(item.label)}</figcaption>` : ''}<pre><code>${escapeHtml(item.code)}</code></pre></figure>`)
+      .join('');
+  }
+
+  if (block.type === 'list') {
+    const listTitle = block.title ? `<p>${escapeHtml(block.title)}</p>` : '';
+    return `${listTitle}<ul>${(block.items || []).map((item) => `<li>${renderRichText(item)}</li>`).join('')}</ul>`;
+  }
+
+  return '';
 }
 
 function renderRouteLinkList(title, links = []) {
@@ -477,6 +530,24 @@ function escapeAttribute(value) {
 
 function escapeScriptJson(value) {
   return value.replaceAll('</script', '<\\/script');
+}
+
+function renderRichText(value) {
+  if (Array.isArray(value)) {
+    return value.map(renderRichText).join('');
+  }
+
+  if (value && typeof value === 'object') {
+    const content = value.strong ? `<strong>${escapeHtml(value.text || '')}</strong>` : escapeHtml(value.text || '');
+
+    if (value.href) {
+      return `<a href="${escapeAttribute(publicPath(value.href))}">${content}</a>`;
+    }
+
+    return content;
+  }
+
+  return escapeHtml(value || '');
 }
 
 function titleCase(value = '') {

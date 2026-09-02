@@ -5,6 +5,7 @@ export const siteUrl = 'https://getpathflow.com';
 export const defaultOgImage = `${siteUrl}/assets/logo.png`;
 
 export const legacyRouteMap = {
+  '/blog/cve-2026-79748-mcp-registry-remote-shell': '/resources/cve-2026-79748-mcp-registry-remote-shell',
   '/services/crm-systems': '/services/crm-automation',
   '/services/lead-intake': '/services/lead-intake-automation',
   '/services/app-integrations': '/services/workflow-automation',
@@ -15,10 +16,12 @@ export const legacyRouteMap = {
   '/products/mcp': '/platform/mcp',
   '/products/handoffs': '/platform/handoffs',
   '/platform/architecture': '/solutions/architecture',
+  '/solutions/mcp': '/platform/mcp',
+  '/handoffs': '/platform/handoffs',
   '/solutions/handoffs': '/platform/handoffs',
 };
 
-const productLastmod = '2026-08-31';
+const productLastmod = '2026-09-01';
 
 const productCollectionItems = [
   {
@@ -187,7 +190,7 @@ export const routeSeo = {
       'Practical guides, architecture patterns and field notes for building, delivering and operating client systems across automation, infrastructure, security and DevOps.',
     schemaType: 'CollectionPage',
     schemaName: 'Pathflow Resources',
-    lastmod: '2026-08-25',
+    lastmod: '2026-09-01',
   },
   ...resourceTopicSeo,
   ...resourceArticleSeo,

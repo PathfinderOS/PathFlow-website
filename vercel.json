@@ -1,6 +1,21 @@
 {
   "redirects": [
     {
+      "source": "/blog/cve-2026-79748-mcp-registry-remote-shell",
+      "destination": "/resources/cve-2026-79748-mcp-registry-remote-shell",
+      "permanent": true
+    },
+    {
+      "source": "/solutions/mcp",
+      "destination": "/platform/mcp",
+      "permanent": true
+    },
+    {
+      "source": "/handoffs",
+      "destination": "/platform/handoffs",
+      "permanent": true
+    },
+    {
       "source": "/services/crm-systems",
       "destination": "/services/crm-automation",
       "permanent": true

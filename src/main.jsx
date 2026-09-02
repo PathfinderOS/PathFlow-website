@@ -3946,6 +3946,7 @@ function PathflowMcpPage() {
       <McpConsultantWorkflowSection />
       <McpNotSection />
       {hasFarmFinancingCaseStudy && <McpProofSection />}
+      <McpResourcesSection />
       <McpClosingSection />
     </article>
   );
@@ -4344,6 +4345,27 @@ function McpProofSection() {
             <ArrowRight size={18} className="cta-arrow" />
           </a>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function McpResourcesSection() {
+  return (
+    <section className="mcp-section">
+      <div className="mcp-prose">
+        <p className="eyebrow">MCP resources</p>
+        <h2>Security boundaries matter once MCP leaves local development.</h2>
+        <p>
+          Shared MCP infrastructure should be reviewed like a real integration layer, especially when it can launch processes, hold credentials, or span client environments.
+        </p>
+      </div>
+      <div className="mx-auto mt-10 max-w-7xl">
+        <LinkedResourceGrid paths={[
+          '/resources/cve-2026-79748-mcp-registry-remote-shell',
+          '/resources/automation-consultant-handoff-documentation',
+          '/resources/secure-client-vps-before-deployment',
+        ]} />
       </div>
     </section>
   );
@@ -4796,8 +4818,10 @@ function ResourceShortSection({ section }) {
         <p className="eyebrow">Early summary</p>
         <h2>{section.title}</h2>
         <div className="resource-summary-block">
-          {section.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
+          {section.paragraphs.map((paragraph, index) => (
+            <p key={resourceTextKey(paragraph, index)}>
+              <ResourceInlineText value={paragraph} />
+            </p>
           ))}
         </div>
       </div>
@@ -4808,21 +4832,49 @@ function ResourceShortSection({ section }) {
 function ResourceProseSection({ section }) {
   return (
     <ResourceArticleShell section={section}>
-      <ResourceParagraphs paragraphs={section.paragraphs} />
-      {section.diagram && <ResourceDiagram diagram={section.diagram} />}
-      {section.diagrams?.map((diagram) => (
-        <ResourceDiagram diagram={diagram} key={diagram.label} />
-      ))}
-      {section.codeBlocks && <ResourceCodeStack blocks={section.codeBlocks} />}
-      {section.list && <ResourceBulletGroup title={section.listTitle} items={section.list} />}
-      {section.records && <ResourceRecordList records={section.records} />}
-      {section.examples && <ResourceExampleStack examples={section.examples} />}
-      {section.paragraphsAfter && <ResourceParagraphs paragraphs={section.paragraphsAfter} />}
-      {section.emphasis && <p className="resource-article-emphasis">{section.emphasis}</p>}
-      {section.relatedLinks && <ResourceRelatedLinks links={section.relatedLinks} />}
-      {section.relatedLink && <ResourceRelatedLink link={section.relatedLink} />}
+      {section.blocks ? (
+        <ResourceContentBlocks blocks={section.blocks} />
+      ) : (
+        <>
+          <ResourceParagraphs paragraphs={section.paragraphs} />
+          {section.diagram && <ResourceDiagram diagram={section.diagram} />}
+          {section.diagrams?.map((diagram) => (
+            <ResourceDiagram diagram={diagram} key={diagram.label} />
+          ))}
+          {section.codeBlocks && <ResourceCodeStack blocks={section.codeBlocks} />}
+          {section.list && <ResourceBulletGroup title={section.listTitle} items={section.list} />}
+          {section.records && <ResourceRecordList records={section.records} />}
+          {section.examples && <ResourceExampleStack examples={section.examples} />}
+          {section.paragraphsAfter && <ResourceParagraphs paragraphs={section.paragraphsAfter} />}
+          {section.emphasis && <p className="resource-article-emphasis">{section.emphasis}</p>}
+          {section.relatedLinks && <ResourceRelatedLinks links={section.relatedLinks} />}
+          {section.relatedLink && <ResourceRelatedLink link={section.relatedLink} />}
+        </>
+      )}
     </ResourceArticleShell>
   );
+}
+
+function ResourceContentBlocks({ blocks }) {
+  return blocks.map((block, index) => {
+    if (block.type === 'paragraphs') {
+      return <ResourceParagraphs paragraphs={block.paragraphs} key={`paragraphs-${index}`} />;
+    }
+
+    if (block.type === 'code') {
+      return <ResourceCodeStack blocks={block.blocks} key={`code-${index}`} />;
+    }
+
+    if (block.type === 'list') {
+      return <ResourceBulletGroup title={block.title} items={block.items} key={`list-${index}`} />;
+    }
+
+    if (block.type === 'diagram') {
+      return <ResourceDiagram diagram={block.diagram} key={`diagram-${index}`} />;
+    }
+
+    return null;
+  });
 }
 
 function ResourceModelsSection({ section }) {
@@ -4994,6 +5046,8 @@ function ResourceChecklistSection({ section }) {
   return (
     <ResourceArticleShell section={section}>
       <ResourceParagraphs paragraphs={section.paragraphs} />
+      {section.codeBlocks && <ResourceCodeStack blocks={section.codeBlocks} />}
+      {section.paragraphsAfter && <ResourceParagraphs paragraphs={section.paragraphsAfter} />}
       {section.groups ? (
         <div className="resource-checklist-groups" aria-label={section.listLabel || section.title}>
           {section.groups.map((group) => (
@@ -5057,8 +5111,10 @@ function ResourceArticleShell({ children, section }) {
 function ResourceParagraphs({ paragraphs = [] }) {
   return (
     <>
-      {paragraphs.map((paragraph) => (
-        <p key={paragraph}>{paragraph}</p>
+      {paragraphs.map((paragraph, index) => (
+        <p key={resourceTextKey(paragraph, index)}>
+          <ResourceInlineText value={paragraph} />
+        </p>
       ))}
     </>
   );
@@ -5069,12 +5125,48 @@ function ResourceBulletGroup({ items, title }) {
     <div className="resource-bullet-group">
       {title && <p>{title}</p>}
       <ul>
-        {items.map((item) => (
-          <li key={item}>{item}</li>
+        {items.map((item, index) => (
+          <li key={resourceTextKey(item, index)}>
+            <ResourceInlineText value={item} />
+          </li>
         ))}
       </ul>
     </div>
   );
+}
+
+function ResourceInlineText({ value }) {
+  const parts = Array.isArray(value) ? value : [value];
+
+  return parts.map((part, index) => {
+    if (part == null) return null;
+
+    if (typeof part === 'string') {
+      return <React.Fragment key={index}>{part}</React.Fragment>;
+    }
+
+    const text = part.text || '';
+    const content = part.strong ? <strong>{text}</strong> : text;
+
+    if (part.href) {
+      return (
+        <a href={part.href} key={`${part.href}-${index}`}>
+          {content}
+        </a>
+      );
+    }
+
+    if (part.strong) {
+      return <strong key={`strong-${index}`}>{text}</strong>;
+    }
+
+    return <React.Fragment key={index}>{text}</React.Fragment>;
+  });
+}
+
+function resourceTextKey(value, index) {
+  if (typeof value === 'string') return value;
+  return `rich-text-${index}`;
 }
 
 function ResourceRecordList({ records }) {

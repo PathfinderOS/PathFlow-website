@@ -1289,6 +1289,25 @@ button:focus-visible {
   margin-top: 1.35rem;
 }
 
+.resource-article-prose a {
+  color: rgba(var(--pathflow-gold-rgb), 0.92);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--pathflow-gold-rgb), 0.42);
+  text-underline-offset: 0.18em;
+}
+
+.resource-article-prose a:hover,
+.resource-article-prose a:focus-visible {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.7);
+}
+
+.resource-article-prose strong {
+  color: #fff;
+  font-weight: 750;
+}
+
 .resource-article-emphasis {
   border-top: 1px solid rgba(var(--pathflow-gold-rgb), 0.42);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);

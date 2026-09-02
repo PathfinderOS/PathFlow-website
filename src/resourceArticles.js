@@ -1,5 +1,472 @@
 export const resourceArticles = [
   {
+    path: '/resources/cve-2026-79748-mcp-registry-remote-shell',
+    slug: 'cve-2026-79748-mcp-registry-remote-shell',
+    category: 'Security',
+    type: 'guide',
+    topics: ['Security', 'MCP', 'Agents', 'Infrastructure'],
+    status: 'published',
+    publishedAt: '2026-09-01',
+    eyebrow: 'Resources / Security',
+    title: 'CVE-2026-79748: Your MCP Registry Might Be a Remote Shell',
+    shortTitle: 'CVE-2026-79748 and MCP Registry Risk',
+    description:
+      'CVE-2026-79748 turned MCPHub server configuration into remote command execution. Here is what consultants should check before deploying shared MCP infrastructure.',
+    dek:
+      'An MCP manager that can launch processes, hold credentials, proxy requests, or manage several client environments needs to be treated like infrastructure, not a passive server list.',
+    readingTime: '10 min read',
+    tags: ['Security', 'MCP', 'MCPHub', 'CVE-2026-79748', 'Client infrastructure'],
+    image: {
+      src: '/resources/mcp_cve.png',
+      alt: 'Dark server rack with an open cabinet and terminal prompt representing MCP registry command execution risk.',
+      width: 1536,
+      height: 1024,
+    },
+    seo: {
+      title: 'CVE-2026-79748: MCP Registry Remote Shell Risk | Pathflow',
+      description:
+        'CVE-2026-79748 turned MCPHub server configuration into remote command execution. Here is what consultants should check before deploying shared MCP infrastructure.',
+      ogTitle: 'CVE-2026-79748: Your MCP Registry Might Be a Remote Shell',
+    },
+    sections: [
+      {
+        id: 'intro',
+        type: 'intro',
+        paragraphs: [
+          [
+            'CVE-2026-79748 affected MCPHub and received a CVSS 3.1 score of ',
+            { text: '9.9 Critical', strong: true },
+            '. An authenticated non-admin user could create or modify an MCP server configuration and provide an arbitrary executable and arguments.',
+          ],
+          'MCPHub would then start that process on the host.',
+          'An API intended to manage MCP servers could therefore be turned into remote command execution.',
+          'The advisory lists MCPHub versions through 0.12.14 as affected. The issue was fixed in MCPHub 0.12.15.',
+        ],
+        closing:
+          'For consultants building internal AI systems, client automations, or shared MCP environments, the useful lesson is what happens when an MCP management layer accumulates more privilege than its name suggests.',
+      },
+      {
+        id: 'what-actually-went-wrong',
+        type: 'prose',
+        title: 'What actually went wrong',
+        blocks: [
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'MCPHub supports stdio MCP servers.',
+              'A stdio server might normally be launched with:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Typical stdio MCP server configuration',
+                code: `command: "npx"
+args: ["some-mcp-server"]`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'The management layer can configure and start the process.',
+              'In vulnerable versions of MCPHub, authenticated users could access the endpoints used to create and update those server definitions without the required administrator authorization check. The command itself was also not restricted to an expected set of executables.',
+              'A malicious configuration could therefore look more like:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Unsafe executable shape',
+                code: `command: "/bin/sh"
+args: ["-c", "..."]`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'MCPHub would execute it with the privileges of the operating-system user running MCPHub.',
+              [
+                'The vulnerability is classified as ',
+                { text: 'CWE-862: Missing Authorization', strong: true },
+                '.',
+              ],
+              'Authentication was present. The missing control was authorization around an operation capable of starting executable processes.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'why-this-matters-for-mcp-deployments',
+        type: 'prose',
+        title: 'Why this matters for MCP deployments',
+        paragraphs: [
+          'MCP setups often grow incrementally.',
+          'You add GitHub, then a database, then a CRM, Google Drive, internal documentation, or a company-specific API. Eventually it becomes useful to manage those servers from one place.',
+        ],
+        codeBlocks: [
+          {
+            label: 'MCP hub as a control point',
+            code: `Agent
+  |
+  v
+MCP Hub
+  |
+  +-- GitHub MCP
+  +-- PostgreSQL MCP
+  +-- CRM MCP
+  +-- Filesystem MCP
+  +-- Internal API MCP`,
+          },
+        ],
+        listTitle:
+          'At that point, the hub may be responsible for much more than keeping a server list:',
+        list: [
+          'starting MCP processes',
+          'storing credentials',
+          'setting environment variables',
+          'assigning servers to users',
+          'proxying requests',
+          'enforcing permissions',
+          'making outbound requests',
+          'managing configuration across integrations',
+        ],
+        paragraphsAfter: [
+          'Every capability increases the impact of a mistake in that layer.',
+          'CVE-2026-79748 makes this obvious because the manager could launch processes, but the same concern applies to credentials, network access, permissions, and tenant isolation.',
+          [
+            'This becomes particularly relevant when MCP is being used as an integration layer across several client systems. Tools such as ',
+            { text: 'Pathflow MCP', href: '/platform/mcp' },
+            ' can make those integrations easier to operate, but the surrounding permissions and infrastructure still need to reflect the authority being concentrated in one place.',
+          ],
+        ],
+      },
+      {
+        id: 'a-registry-can-become-infrastructure',
+        type: 'prose',
+        title: 'A registry can become infrastructure',
+        blocks: [
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'A basic registry might only store:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Basic registry record',
+                code: `GitHub MCP
+CRM MCP
+PostgreSQL MCP`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'Now give the same service the ability to:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Infrastructure authority',
+                code: `start servers
+set environment variables
+store credentials
+change arguments
+assign user access
+proxy traffic`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'Its security requirements change.',
+              'A permissions bug can now affect the host or downstream systems instead of just the registry itself.',
+              'This is worth checking because products described as an MCP "registry," "hub," or "manager" may have very different levels of authority.',
+              'Look at the capabilities, not the label.',
+              [
+                'For client environments, documenting that authority is useful before deployment. A clear view of the ',
+                { text: 'system architecture', href: '/solutions/architecture' },
+                ' should show which MCP services can reach which applications, where credentials live, what processes are being launched, and where tenant or network boundaries exist.',
+              ],
+            ],
+          },
+        ],
+      },
+      {
+        id: 'stdio-deserves-particular-attention',
+        type: 'prose',
+        title: 'Stdio deserves particular attention',
+        paragraphs: [
+          'A stdio MCP server is a process, and something has to launch it.',
+          'At some point the configuration becomes roughly:',
+        ],
+        codeBlocks: [
+          {
+            label: 'Process launch boundary',
+            code: 'command + arguments + environment -> process',
+          },
+        ],
+        paragraphsAfter: [
+          'If users can influence those values, that interface needs to be treated as privileged.',
+          'This is familiar territory.',
+          'A CI/CD pipeline can execute code. A container platform can launch arbitrary workloads. An automation platform may invoke a shell, database, API, or cloud service.',
+          'MCP management software inherits the same risk once it starts managing executable servers.',
+        ],
+      },
+      {
+        id: 'what-consultants-should-check',
+        type: 'prose',
+        title: 'What consultants should check',
+        blocks: [
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'Consultants and freelancers increasingly build integration layers with access to a significant part of a client\'s stack:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Shared MCP infrastructure shape',
+                code: `MCP Manager
+  |
+  +-- Google Workspace
+  +-- GitHub
+  +-- CRM
+  +-- Database
+  +-- n8n
+  +-- Internal APIs`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'That concentration of access is useful, but it also increases the blast radius of a compromised management layer.',
+              'It matters even more when shared infrastructure manages integrations for several clients.',
+            ],
+          },
+          {
+            type: 'list',
+            title: 'Before deploying one, consultants should be able to answer a few basic questions:',
+            items: [
+              'Can normal users create or modify MCP servers?',
+              'Who can change commands and arguments?',
+              'What OS user runs MCP processes?',
+              'Are servers isolated from one another?',
+              'Which credentials can each server access?',
+              'Are secrets exposed through a shared environment?',
+              'Can servers make arbitrary outbound requests?',
+              'Is tenant access enforced separately for each client?',
+              'Are configuration changes and sensitive tool calls logged?',
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'These are normal infrastructure questions. MCP does not remove the need to answer them.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'keep-process-privileges-narrow',
+        type: 'prose',
+        title: 'Keep process privileges narrow',
+        paragraphs: [
+          'If an MCP manager is compromised while running as root, the consequences are obviously worse.',
+          'Running it under a restricted service account with limited filesystem access, network access, and credentials gives an attacker fewer places to go.',
+          'The same principle applies to individual MCP servers.',
+          'A filesystem server rarely needs the whole filesystem. A database server rarely needs administrative credentials. A GitHub server rarely needs access to every repository.',
+          'Least privilege still does most of the boring, useful work here.',
+        ],
+      },
+      {
+        id: 'scope-credentials-per-server',
+        type: 'prose',
+        title: 'Scope credentials per server',
+        paragraphs: [
+          'Credentials may be an even more common weakness than command execution.',
+          'A manager could easily end up holding secrets such as:',
+        ],
+        codeBlocks: [
+          {
+            label: 'Common MCP manager secrets',
+            code: `GITHUB_TOKEN
+POSTGRES_PASSWORD
+CRM_API_KEY
+GOOGLE_CLIENT_SECRET
+INTERNAL_API_TOKEN`,
+          },
+        ],
+        paragraphsAfter: [
+          'If every MCP process inherits the same environment, compromising one server may expose credentials intended for several others.',
+          'Each server should receive only the secrets it actually needs.',
+          'For shared consulting infrastructure, that separation should also exist between clients.',
+        ],
+      },
+      {
+        id: 'make-agent-actions-traceable',
+        type: 'prose',
+        title: 'Make agent actions traceable',
+        blocks: [
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'With MCP, the path to an external action may look like:',
+            ],
+          },
+          {
+            type: 'code',
+            blocks: [
+              {
+                label: 'Agent action path',
+                code: `User
+  -> Agent
+    -> MCP Manager
+      -> MCP Server
+        -> External System`,
+              },
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'If something goes wrong, the path should be reconstructable.',
+            ],
+          },
+          {
+            type: 'list',
+            title: 'Useful logs should tell you:',
+            items: [
+              'which user initiated the request',
+              'which agent or session made the MCP call',
+              'which server handled it',
+              'which tool was invoked',
+              'who changed server configuration',
+              'when the change happened',
+            ],
+          },
+          {
+            type: 'paragraphs',
+            paragraphs: [
+              'Credentials and sensitive arguments should not be dumped into logs, but the action itself should be attributable.',
+              'This matters much more once agents are performing actual client operations instead of read-only lookups.',
+              [
+                'The same principle applies when work is delivered back to a client. A ',
+                { text: 'technical handoff', href: '/platform/handoffs' },
+                ' should make it clear what was changed, which systems are involved, what remains operational, and where responsibility sits after delivery.',
+              ],
+            ],
+          },
+        ],
+      },
+      {
+        id: 'the-practical-takeaway',
+        type: 'prose',
+        title: 'The practical takeaway',
+        paragraphs: [
+          'CVE-2026-79748 came from a familiar security failure: missing authorization around a sensitive operation.',
+          'The reason it is worth paying attention to is the amount of authority sitting behind that operation.',
+          'When reviewing an MCP registry or manager, ask what it can actually do.',
+          'Can it launch processes? Does it hold credentials? Can it reach internal services? Does it decide which users access which servers? Does it manage several clients from the same deployment?',
+          'If the answer to several of those questions is yes, treat it accordingly.',
+          'For consultants moving MCP beyond local experiments and into client infrastructure, the useful checklist remains fairly ordinary:',
+        ],
+        codeBlocks: [
+          {
+            label: 'MCP manager security baseline',
+            code: `least privilege
+RBAC
+tenant isolation
+secret scoping
+process isolation
+audit logs
+network restrictions
+patch management`,
+          },
+        ],
+        paragraphsAfter: [
+          'CVE-2026-79748 is a particularly clean example of what happens when one of those controls is missing.',
+          'Before connecting another ten systems to an MCP manager, check how much authority you are putting behind it.',
+        ],
+      },
+      {
+        id: 'related-resources',
+        type: 'prose',
+        title: 'Related resources',
+        paragraphs: [
+          'These Pathflow resources cover adjacent parts of MCP-based integration, operational architecture, and client delivery context.',
+        ],
+        relatedLinks: [
+          {
+            label: 'Pathflow MCP',
+            href: '/platform/mcp',
+            description:
+              'Give agents structured access to project context, resources, architecture, deployment state, and handoffs.',
+          },
+          {
+            label: 'Pathflow Architecture',
+            href: '/solutions/architecture',
+            description:
+              'Map systems, services, credentials by reference, ownership boundaries, resources, and data flows.',
+          },
+          {
+            label: 'Pathflow Handoffs',
+            href: '/platform/handoffs',
+            description:
+              'Keep delivery notes, resources, instructions, project history, and client-facing handoff context together.',
+          },
+          {
+            label: 'Pathflow Resources',
+            href: '/resources',
+            description:
+              'Browse practical guides for connected systems, automation, infrastructure, and client delivery operations.',
+          },
+        ],
+      },
+      {
+        id: 'sources',
+        type: 'sources',
+        title: 'Sources',
+      },
+    ],
+    sources: [
+      {
+        label: 'CVE-2026-79748',
+        provider: 'CVE Program',
+        href: 'https://www.cve.org/CVERecord?id=CVE-2026-79748',
+        description:
+          'Official CVE record for CVE-2026-79748.',
+      },
+      {
+        label: 'MCPHub security advisory: CVE-2026-79748',
+        provider: 'GitHub Security Advisory',
+        href: 'https://github.com/samanhappy/mcphub/security/advisories/GHSA-mx89-jjx9-gjr8',
+        description:
+          'Repository security advisory for the MCPHub missing authorization vulnerability affecting server configuration management.',
+      },
+      {
+        label: 'MCPHub v0.12.15',
+        provider: 'GitHub Releases',
+        href: 'https://github.com/samanhappy/mcphub/releases/tag/v0.12.15',
+        description:
+          'MCPHub release containing the authorization and ownership hardening associated with the CVE-2026-79748 fix.',
+      },
+    ],
+  },
+  {
     path: '/resources/highlevel-project-management-crm-client-delivery',
     slug: 'highlevel-project-management-crm-client-delivery',
     category: 'CRM',
@@ -5151,6 +5618,7 @@ const preferredTopicOrder = [
   'Infrastructure',
   'Automation',
   'Security',
+  'MCP',
   'DevOps',
   'Agents',
   'Delivery',
@@ -5187,6 +5655,8 @@ const resourceTopicDescriptions = {
     'Guides and field notes for self-hosted runner maintenance, CI/CD continuity, deployment brownouts, and infrastructure ownership.',
   n8n:
     'Guides and field notes for n8n workflow design, Zapier migration, retry behavior, APIs, webhooks, and managed automation.',
+  MCP:
+    'Guides and field notes for MCP managers, registries, agent context, credentials, security boundaries, and client-system integration.',
 };
 
 function topicSlug(topic) {

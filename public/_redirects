@@ -1,3 +1,6 @@
+/blog/cve-2026-79748-mcp-registry-remote-shell /resources/cve-2026-79748-mcp-registry-remote-shell 301
+/solutions/mcp /platform/mcp 301
+/handoffs /platform/handoffs 301
 /services/crm-systems /services/crm-automation 301
 /services/lead-intake /services/lead-intake-automation 301
 /services/app-integrations /services/workflow-automation 301
