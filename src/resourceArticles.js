@@ -17,7 +17,7 @@ export const resourceArticles = [
     readingTime: '10 min read',
     tags: ['Security', 'MCP', 'MCPHub', 'CVE-2026-79748', 'Client infrastructure'],
     image: {
-      src: '/resources/mcp_cve.png',
+      src: '/resources/mcp_cve.png?v=20260902',
       alt: 'Dark server rack with an open cabinet and terminal prompt representing MCP registry command execution risk.',
       width: 1536,
       height: 1024,
